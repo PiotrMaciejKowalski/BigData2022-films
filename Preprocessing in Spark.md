@@ -6,21 +6,24 @@ One of the major limitations of Pandas is that Pandas was designed for small dat
 ## 1. Loading data
 After setup a SparkSession we can read out dataset using set of functions read.option.csv:
 
-    df_spark=data_spark.read.option('header','true').csv('airlines.csv')
+```python
+df_spark=data_spark.read.option('header','true').csv('airlines.csv')
+```
 
 We might see the top 20 rows of dataset using the show() method:
-
-    df_spark.show
-
+```python
+df_spark.show
+```
 
 ## 2. Exploring data
 
 ### 2.1. Schema of data
 Typically, the first step to explore a DataFrame is to understand its schema: column names and corresponding data types.
 Using printSchema() function we might check what type of data type and columns of our dataset holds and if these columns consisting any null values:
-
-    df_spark.printSchema()
-    
+```python
+df_spark.printSchema()
+```
+```
 Output:    
 root
  |-- Airport.Code: string (nullable = true)
@@ -47,7 +50,7 @@ root
  |-- Statistics.Minutes Delayed.Security: string (nullable = true)
  |-- Statistics.Minutes Delayed.Total: string (nullable = true)
  |-- Statistics.Minutes Delayed.Weather: string (nullable = true)
- 
+``` 
 But this way we always obtain the string value in every column, because it is default setting of printSchema(). We may fix it by adding one more argument **inferScema = True** in read.option().
 
     df_spark = data_spark.read.option('header','true').csv('airlines.csv', inferSchema=True)
