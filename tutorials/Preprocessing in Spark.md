@@ -19,12 +19,12 @@ df_spark.show()
 
 ### 2.1. Schema of data
 Typically, the first step to explore a DataFrame is to understand its schema: column names and corresponding data types.
-Using printSchema() function we might check what type of data type and columns of our dataset holds and if these columns consisting any null values:
+Using `printSchema()` function we might check what type of data type and columns of our dataset holds and if these columns consisting any null values:
 ```python
 df_spark.printSchema()
 ```
-```
 Output:    
+```
 root
  |-- Airport.Code: string (nullable = true)
  |-- Airport.Name: string (nullable = true)
@@ -55,8 +55,8 @@ But this way we always obtain the string value in every column, because it is de
 ```python
 data_spark.read.option('header','true').csv('airlines.csv', inferSchema=True).printSchema()
 ```
-```   
 New output:
+```
 root
  |-- Airport.Code: string (nullable = true)
  |-- Airport.Name: string (nullable = true)
@@ -161,8 +161,13 @@ df_spark.drop('Airport.Code')
  If we want to drop multiple columns from the dataset in the same instance, we can pass the list of column names as the parameter.
  
 ### 4.5 One-hot encoding
-Spark DataFrame does not provide  function get_dummies(). A workaround is to convert the DataFrame to Pandas.
-#TODO
+Spark DataFrame provides class OneHotEncoder(). A one-hot encoder that maps a column of category indices to a column of binary vectors, with at most a single one-value per row that indicates the input category index. 
+```python
+from pyspark.ml.feature import OneHotEncoder
+OneHotEncoder(inputCol="Time.Year", outputCol="time_vec").fit(df_spark).transform(df_spark)
+```
+If categorical feature is e.g. represented as string value, it becomes necessary to use `StringIndexer` first to convert the string values into label indices (numeric values).
+
 ### 4.6 Reformatting DataFrame for ML
 
 A Spark DataFrame can be converted into a Pandas DataFrame as follows to obtain a corresponding Numpy array easily if the dataset can be handled on a single machine.
