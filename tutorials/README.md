@@ -1,0 +1,1 @@
+Folder służący do przechowywania materiałów edukacyjnych (własnej produkcji lub nie) mających zapoznać resztę zespołu z wykorzystanymi metodami. Staramy się, aby poradniki były zwięzłę oraz zawierały odnośniki do źródeł lub pomocnicznych materiałów.
