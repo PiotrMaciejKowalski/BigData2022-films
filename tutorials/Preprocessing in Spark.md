@@ -4,13 +4,13 @@ One of the major limitations of Pandas is that Pandas was designed for small dat
 
 
 ## 1. Loading data
-After setup a SparkSession we can read out dataset using set of functions read.option.csv:
+After setup a SparkSession we can read out dataset using set of functions `read.option.csv`:
 
 ```python
 df_spark=data_spark.read.option('header','true').csv('airlines.csv')
 ```
 
-We might see the top 20 rows of dataset using the show() method:
+We might see the top 20 rows of dataset using the `show()` method:
 ```python
 df_spark.show()
 ```
@@ -51,7 +51,7 @@ root
  |-- Statistics.Minutes Delayed.Total: string (nullable = true)
  |-- Statistics.Minutes Delayed.Weather: string (nullable = true)
 ``` 
-But this way we always obtain the string value in every column, because it is default setting of printSchema(). We may fix it by adding one more argument **inferScema = True** in read.option().
+But this way we always obtain the string value in every column, because it is default setting of `printSchema()`. We may fix it by adding one more argument **inferScema = True** in `read.option()`.
 ```python
 data_spark.read.option('header','true').csv('airlines.csv', inferSchema=True).printSchema()
 ```
@@ -96,7 +96,7 @@ By using the columns object, we can see the name of all the columns present in t
 df_spark.columns
 ```    
 ### 2.2 Statistical summary of data
-Pyspark’s **describe**() is used to view some basic statistical details like count, mean, stddev, min and max of a DataFrame or a series of numeric:
+Pyspark’s `describe()` is used to view some basic statistical details like count, mean, stddev, min and max of a DataFrame or a series of numeric:
 ```python
 df_spark.describe().show()
 ```
@@ -112,7 +112,7 @@ The output is number of duplicated rows.
 ## 3. Cleaning data
 
 ### 3.1. Missing Data
- Spark DataFrame provide a similar function to fillna() from Pandas, but it only allows a value that matches the data type of the corresponding column.
+ Spark DataFrame provide a similar function to `fillna()` from Pandas, but it only allows a value that matches the data type of the corresponding column.
 ```python 
 df_spark.na.fill(0)
 ```
@@ -143,25 +143,25 @@ Spark DataFrame provides a different API than Pandas:
 spark_df.select('Open', 'Close')
 ```
 ### 4.2 Renaming Columns
-We use withColumnRenamed() function to rename columns:
+We use `withColumnRenamed()` function to rename columns:
 ```python
 spark_df.withColumnRenamed("Airport.Name", "Name")
 ```
 ### 4.3 Creating New Columns
-We used the withcolumn() function to add the columns or change the existing columns in the Pyspark DataFrame. Then in that function, we will be giving two parameters: the name of the new column and the value that new column will hold.
+We used the `withcolumn()` function to add the columns or change the existing columns in the Pyspark DataFrame. Then in that function, we will be giving two parameters: the name of the new column and the value that new column will hold.
 ```python
 from pyspark.sql.functions import colp 
 df_spark.withColumn("Sum", col("Open") + col("Close"))
 ```
 ### 4.4 Dropping Columns
-Dropping the column from the dataset is a pretty straightforward task, and for that, we will be using the drop() function from PySpark.
+Dropping the column from the dataset is a pretty straightforward task, and for that, we will be using the `drop()` function from PySpark.
 ```python
 df_spark.drop('Airport.Code')
 ```    
  If we want to drop multiple columns from the dataset in the same instance, we can pass the list of column names as the parameter.
  
 ### 4.5 One-hot encoding
-Spark DataFrame provides class OneHotEncoder(). A one-hot encoder that maps a column of category indices to a column of binary vectors, with at most a single one-value per row that indicates the input category index. 
+Spark DataFrame provides class `OneHotEncoder()`. A one-hot encoder that maps a column of category indices to a column of binary vectors, with at most a single one-value per row that indicates the input category index. 
 ```python
 from pyspark.ml.feature import OneHotEncoder
 OneHotEncoder(inputCol="Time.Year", outputCol="time_vec").fit(df_spark).transform(df_spark)
