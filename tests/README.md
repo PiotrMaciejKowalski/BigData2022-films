@@ -1,1 +1,1 @@
-Wprowadzenie do testów z wykorzystaniem biblioteki pytest [Pytest Unit Testing Tutorial • How to test your Python code](https://www.youtube.com/watch?v=YbpKMIUjvK8)
+Folder służący do przechowywania testów jednostkowych.
