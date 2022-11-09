@@ -10,3 +10,5 @@ Przykłady rzeczy, które można umieszczać w folderach lib:
 Zasadniczo, wszystko, co może być zależnością od strony trzeciej, której nie chcemy umieszczać w jej własnym repozytorium i ustawiać zarządzania nad nią, **możemy użyć lib** i mieć tę funkcjonalność czysto odłączoną w swojej głównej aplikacji.
 
 Krótki artykuł [What Code Goes in the Lib/ Directory?](https://codeclimate.com/blog/what-code-goes-in-the-lib-directory/)
+
+@TODO: Przenieść ten plik do folderu "tutorials", gdu pojawi się pierwsza właściwa treść.
