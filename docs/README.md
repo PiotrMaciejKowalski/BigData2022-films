@@ -1,0 +1,1 @@
+# Wszelka dokumentacja dotycząca projektu.
