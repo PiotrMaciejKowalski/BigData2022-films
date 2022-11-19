@@ -19,12 +19,12 @@ Na wstępie należy podkreślić dwa fakty:
 
 ## Struktura
 
-Standardowa struktura projektu (z reguły) zawiera folder */tests*. Służy on przechowywaniu funkcji testujących (testów jednostkowych). Natomiast aplikacja będzie przechowywana w innym folderze np. */app*, */model*, */predictor* itp.
+Standardowa struktura projektu (z reguły) zawiera folder */tests*. Służy on przechowywaniu funkcji testujących (testów jednostkowych). Natomiast aplikacja będzie przechowywana w innym folderze np. */lib*, */app*, */model*, */predictor* itp.
 
 Utwórzmy strukturę naszej aplikacji:
 ```
 PyTest:
-    app:
+    lib:
         __init__.py
         bmi_calc.py
         bmi_calc.ipynb
@@ -40,13 +40,13 @@ PyTest:
 Jeżeli chcemy uruchomić nasze testy:
 - w przypadku obiektowym - wywołujemy komendę `pytest` w folderze nadrzędnym (w naszym przypadku /bmi_project), poprzez wykorzystanie terminala
 
-![img](pics/pytest1.png)
+![img](pytest_files/pytest1.png)
 
 *Oczywiście, jeszcze nie napisaliśmy żadnych testów, zatem żaden test nie został uruchomiony.*
 
 - w przypadku notatnika - możemy skorzystać z komendy `!pytest ../tests`, gdzie *tests* jest wskazaniem folderu zawierającego testy jednostkowe
 
-![img](pics/pytest2.png)]]
+![img](pytest_files/pytest2.png)
 
 ## Przykładowy test
 
@@ -59,9 +59,9 @@ def test_first():
 
 Po ponownym uruchomieniu testów dla scenariusza obiektowego jak i notatnikowego otrzymujemy odpowiednio:
 
-![img](pics/pytest3.png)]]
+![img](pytest_files/pytest3.png)
 
-![img](pics/pytest4.png)]]
+![img](pytest_files/pytest4.png)
 
 ---
 ## Przypadek obiektowy
@@ -94,23 +94,27 @@ Finalnie, otrzymaliśmy (prawie) gotową aplikację, która wylicza nam nasze BM
 ---
 ### Testy jednostkowe
 Dla naszej aplikacji utworzymy dwa podstawowe testy:
-1. Czy zwraca wartości większe od 0.
+1. Czy zwraca wartości zgodne z formułą.
 2. Czy zwraca błąd dla nieprawidłowych wartości (właściwy typ danych wymusza użycie "*typingu*": `plec: bin, wzrost: int, waga: int`, ale o tym w innym poradniku).
 
-> Za **dobrą praktykę** tworzenia testów uwarza się kolejność: *napisanie testu &rarr; uruchomienie testu z oczekiwanym błędem &rarr; poprawienie aplikacji &rarr; ponowne uruchomienie testu z oczekiwanym pozytywnym wynikiem*.
+> Za **dobrą praktykę** tworzenia testów uważa się kolejność: *napisanie testu &rarr; uruchomienie testu z oczekiwanym błędem &rarr; poprawienie aplikacji &rarr; ponowne uruchomienie testu z oczekiwanym pozytywnym wynikiem*.
 
 ### Zaczynajmy!
 
-Rozpocznijmy od rozbudowania pliku `/input_test.py`
+Rozpocznijmy od rozbudowania pliku `/input_test.py`. Przypomnijmy, że (nasza) formuła na wyliczanie wartości BMI, w przypadku panów jest następująca: `self.waga/(self.wzrost/100)**2`.
+
 ```
-from app.bmi_calc import Osoba
+import pytest
+from lib.bmi_calc import Osoba
 
 def test_first():
     pass
 
-def test_for_positive_bmi():
-    bmi = Osoba(1, 187, 82).BMI()
-    assert bmi > 0
+def test_for_correct_bmi_value():
+    bmi = 82/(187/100)**2
+    bmi_test = Osoba(1, 187, 82).BMI()
+
+    assert bmi_test == pytest.approx(bmi, 0.1)
 ```
 
 Zauważmy, że pojawiło się wyrażenie [assert](https://www.w3schools.com/python/ref_keyword_assert.asp). W skrócie, jest to warunek `if` zarezerwowany do testowania, tj.
@@ -124,35 +128,60 @@ assert x == "hello"
 assert x == "goodbye"
 ```
 
-Wracając do naszego testu, napisaliśmy test sprawdzający, czy dla prawidłowych argumentów, otrzymujemy wynik większy od 0. Dodatkowo, aby móc to osiągnąć, musieliśmy sięgnąć do folderu z aplikacją, żeby wyciągnąć testowaną klasę, tj. `from app.bmi_calc import Osoba`. Przetestujmy!
+Dodatkowo, zaimportowaliśmy bilbiotekę `pytest`, aby skorzystać z funkcji [approx()](https://docs.pytest.org/en/7.1.x/reference/reference.html#pytest-approx). Jest to sprawdzenie, czy zadane wartości są sobie równe, w pewnym przybliżeniu. W naszym konkretnym przypadku jest to w przybliżeniu do `0.1`.
 
-![img](pics/pytest5.png)]]
+Wracając do naszego testu, napisaliśmy test sprawdzający, czy otrzymujemy wynik wedle formuły, którą (jako tester) uznajemy za prawidłową. Dodatkowo, aby móc to osiągnąć, musieliśmy sięgnąć do folderu z aplikacją, żeby wyciągnąć testowaną klasę, tj. `from lib.bmi_calc import Osoba`. Przetestujmy!
+
+![img](pytest_files/pytest5.png)
 
 Sukces!
 
 Mozemy zabrać się za pisanie drugiego testu. Teraz spróbujemy napisać test jednostkowy, który sprawdzałby, czy jest napisane ograniczenie (zwracające błąd) w przypadku wprowadzenia nieprawdiłowych wartości, tj. mniejszych od 0.
 ```
 import pytest
-from app.bmi_calc import Osoba
+from lib.bmi_calc import Osoba
 
 def test_first():
     pass
 
-def test_for_positive_bmi():
-    bmi = Osoba(1, 187, 82).BMI()
-    assert bmi > 0
+def test_for_correct_bmi_value():
+    bmi = 82/(187/100)**2
+    bmi_test = Osoba(1, 187, 82).BMI()
+
+    assert bmi_test == pytest.approx(bmi, 0.1)
 
 def test_for_positive_bmi_values_error_raise():
 
-    with pytest.raises(ValueError):
-        bmi = Osoba(1, 187, -82).BMI()
+    try:
+        Osoba(1, 187, -82).BMI()
+    except ValueError:
+        pass
+    else:
+        pytest.fail()
 ```
 
-Zwróć uwagę, że tym razem zaimportowaliśmy bilbiotekę `pytest`. Dzieje się tak ponieważ teraz chcemy przetestować konkretną funkcjonalność tej bilbioteki. Test, który napisaliśmy, sprawdza, czy w przypadku wprowadznie nieprawidłowych wartości `bmi = Osoba(1, 187, -82).BMI()`, aplikacja zwróci nam błąd typou `ValueError`, tj. `with pytest.raises(ValueError)`.
+Test, który napisaliśmy, sprawdza, czy w przypadku wprowadznie nieprawidłowych wartości `Osoba(1, 187, -82).BMI()`, aplikacja zwróci nam błąd typu `ValueError`, tj.
+```
+# spróbuj uruchomić aplikację dla zadanych wartości
+try:
+    Osoba(1, 187, -82).BMI()
+
+# oczekuj od aplikacji błędu typu "błąd wartości"
+except ValueError:
+
+    # jeżeli taki otrzymasz, to test "zdany"
+    pass
+
+# w przeciwnym wypadku, test "oblany"
+else:
+    pytest.fail()
+```
+
+Więcej o obsługiwaniu wyjątków w Pythonie można przeczytać tutaj [8.3 Obsługa wyjątków](https://pl.python.org/docs/tut/node10.html).
 
 Przetestujmy!
 
-![img](pics/pytest6.png)]]
+![img](pytest_files/pytest6.png)
 
 Porażka!
 
@@ -180,9 +209,9 @@ class Osoba:
 
 Przetestujmy jeszcze raz naszą aplikację.
 
-![img](pics/pytest7.png)]]
+![img](pytest_files/pytest7.png)
 
-![img](pics/Great_Success.jpg)]]
+![img](pytest_files/Great_Success.jpg)
 
 *(W przypadkach prawdziwych projektów, euforia związana ze "wszystkimi testami na zielono" jest znacznie większa niż ta przedstawiona na obrazku.)*
 
