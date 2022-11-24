@@ -3,20 +3,20 @@
 
 
 Wyrażenia regularne są przydatne w wydobywaniu informacji z tekstu.
-Innymi słowy, wyrazenia regularne to wzorzec, który opisuje okreslony tekst do wyszukania.
+Innymi słowy, wyrażenia regularne to wzorzec, który opisuje określony tekst do wyszukania.
 Mogą być w wykorzystywane na przykład przy sprawdzaniu poprawności wypełniania kwestionariusza
 (adres, numer telefonu, e-mail).
 
 
-Na początek należy spojrzeć na tekst jako na ciąg składający się z różnych znaków, 
-każda litera, cyfra, znaki specjalne, spacje są postrzegane jako znaki. Korzystając z
+Na początek należy spojrzeć na tekst jako na ciąg składający się z różnych znaków. 
+Każda litera, cyfra, znaki specjalne, spacje są postrzegane jako znaki. Korzystając z
 wyrażeń reguralnych (w skrócie regex) piszemy wzorce pasujące do określonej sekwencji znaków.
 
-W tym celu mamy wiele tzn. metaznaków, ktorych używamy do dopasowania do określonego typu 
+W tym celu mamy wiele tzn. metaznaków, których używamy do dopasowania określonego typu 
 znaków. Poniżej przestawię parę przykładowych znaków specjalnych oraz przykłady ich użycia.
 
 ##Metaznaki
-Znak \d może być użyty zamiast dowolnej cyfy od 0 do 9, natomiast \D oznacza dowolną literę. Poprzedający ukośnik odróżnia go od
+Znak \d może być użyty zamiast dowolnej cyfy od 0 do 9, natomiast \D oznacza dowolny znak poza cyframi. Poprzedający ukośnik odróżnia go od
 prostego znaku d lub D i wskazuje, że jest to metaznak.
 
 Przykład:
@@ -25,13 +25,13 @@ Przykład:
 import re
 txt1 = "a6"
 x = re.search("\D\d", txt1)
-if x:
+if x is not None:
     print('To jest wzorzec')
 else:
     print('To nie jest wzorzec')
 ```
 Stosujemy również symbol wieloznaczny, który jest reprezentowany przez . (kropka) i może pasować
-do dowolnego pojedynczego znaku. Chcąc natomiast konkrentnie dopasować kropkę korzystamy z wyrazenia \. .
+do dowolnego pojedynczego znaku. Chcąc natomiast konkrentnie dopasować kropkę korzystamy z wyrazenia \. lub [.].
 
 Przykład:
 
@@ -39,7 +39,7 @@ Przykład:
 import re
 txt1 = "@30gnks"
 x = re.search(".\d\d\D", txt1)
-if x:
+if x is not None:
     print('To jest wzorzec')
 else:
     print('To nie jest wzorzec')
@@ -56,14 +56,14 @@ import re
 txt1 = "gbba"
 txt2
 x = re.search("[agb][^adg]", txt1)
-if x:
+if x is not None:
     print('To jest wzorzec')
 else:
     print('To nie jest wzorzec')
 ```
 
 
-Korzystając z notacji nawiasów kwadratowych możemy użyć myślnika do określenia znaku z listy kolejnych znaków.
+Korzystając z notacji nawiasów kwadratowych możemy użyć myślnika do określenia znaku z zakresu kolejnych znaków.
 Na przykład wzorzec [0-6] bedzie pasował do pojedynczego znaku z przedziału od 0 do 6, natomiast
 [^n-p] dopasowuje dowolny pojedynczy znak poza literami od n do p.
 
@@ -72,7 +72,7 @@ Na przykład wzorzec [0-6] bedzie pasował do pojedynczego znaku z przedziału o
 
 Jeśli mamy potrzebę skorzystać parę razy z tego samego metaznacznika możemy w tym celu skorzystać z 
 nawiasów klamrowych. Wyrażenie \d{3} oznacza, że mamy następujące po sobie trzy dowolne cyfy. Możemy
-również wyznaczyć zakres. .{2,6} mówi nam, że dowolny znak może wystąpić od dwóch do cześćiu znaków
+również wyznaczyć zakres. .{2,6} mówi nam, że dowolny znak może wystąpić od dwóch do sześciu znaków
 następujących po sobie.
 
 Przykład:
@@ -81,7 +81,7 @@ import re
 txt1 = "g65a"
 txt2
 x = re.search("g\d{2}a", txt1)
-if x:
+if x is not None:
     print('To jest wzorzec')
 else:
     print('To nie jest wzorzec')
@@ -106,7 +106,7 @@ txt1 = "ac"
 txt2 = "abc"
 x = re.search("ab?c", txt1)
 y = re.search("ab?c", txt2)
-if x and y:
+if (x and y) is not None:
     print('To jest wzorzec')
 else:
     print('To nie jest wzorzec')
@@ -120,31 +120,8 @@ Przykład:
 ```python
 txt = "A writer and wall street trader, Nick, finds himself drawn to the past and lifestyle of his neighbor, Jay Gatsby."
 x = re.search("\D{4} street", txt)
-if x:
+if x is not None:
     print('To jest wzorzec')
 else:
     print('To nie jest wzorzec')
-
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
