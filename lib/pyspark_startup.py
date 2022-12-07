@@ -19,28 +19,29 @@ def load(spark: SparkSession) -> DataFrame:
         join(title_seasons,
             title_basics.tconst == title_seasons.parentTconst,
             how = "left").\
-            join(title_episode,
-                title_basics.tconst == title_episode.parentTconst,
-                how = "left").\
-                join(title_ratings,
-                    ["tconst"],
-                    how = "left").\
-                    drop("parentTconst").\
-                    join(title_principals,
-                            ["tconst"],
-                            how = "left").\
-                            toDF("id",
-                                "rodzaj_produkcji",
-                                "tytul",
-                                "czy_dla_doroslych",
-                                "rok_wydania_produkcji",
-                                "rok_zakonczenia_produkcji",
-                                "dlugosc_pordukcji_w_min",
-                                "gatunek",
-                                "liczba_sezonow",
-                                "liczba_wszystkich_odcinkow",
-                                "ocena",
-                                "liczba_glosow",
-                                "1","10","2","3","4","5","6","7","8","9")
+        join(title_episode,
+            title_basics.tconst == title_episode.parentTconst,
+            how = "left").\
+        join(title_ratings,
+            ["tconst"],
+            how = "left").\
+        drop("parentTconst").\
+        join(title_principals,
+            ["tconst"],
+            how = "left").\
+        toDF(
+            "id",
+            "rodzaj_produkcji",
+            "tytul",
+            "czy_dla_doroslych",
+            "rok_wydania_produkcji",
+            "rok_zakonczenia_produkcji",
+            "dlugosc_produkcji_w_min",
+            "gatunek",
+            "liczba_sezonow",
+            "liczba_wszystkich_odcinkow",
+            "ocena",
+            "liczba_glosow",
+            "1","10","2","3","4","5","6","7","8","9")
                                 
     return data
