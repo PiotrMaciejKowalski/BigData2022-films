@@ -1,18 +1,10 @@
 import findspark
+findspark.init()
+
 from pyspark.sql import SparkSession, DataFrame
 
-spark_params = {
-    "spark.executor.memory" : "4g",
-    "spark.driver.memory": "4g",
-    "spark.memory.fraction": "0.9"}
-
 def init() -> SparkSession:
-    findspark.init()
     spark = SparkSession.builder.master("local[*]").getOrCreate()
-    
-    for param, value in spark_params.items():
-        spark.conf.set(param, value)
-
     return spark
 
 def load(spark: SparkSession) -> DataFrame:
