@@ -1,3 +1,7 @@
+import findspark
+
+findspark.init()
+
 import pytest
 import pyspark
 
@@ -43,4 +47,6 @@ def test_add_epoch_column():
   )
 
   result = add_epoch_column(df)
+
+  print(result.show())
   assert_pyspark_df_equal(result, expect_df)
