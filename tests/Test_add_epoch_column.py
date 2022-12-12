@@ -1,24 +1,46 @@
 import pytest
+import pyspark
 
-def test_add_epoch_column(sample_size):
-  
-  result = []
-  exp_result = []
+from pyspark.sql import SparkSession, DataFrame
 
-  title_basics_epoch = add_epoch_column(title_basics)
-  columns_names = title_basics_epoch.columns
-  periods = [0,1901,1918,1926,1939,1954,1970,1985,1994,2009,2050]
+from lib.add_epoch_column import add_epoch_column
 
-  sample =  title_basics_epoch.rdd.takeSample(False,sample_size)
+from pyspark_test import assert_pyspark_df_equal
 
-  periods_index = columns_names.index("period")
-  startYear_index = columns_names.index("startYear")
-  
-  for i in range(sample_size):
-    result.append(sample[i][periods_index])  
-    for k in range(len(periods) - 1):
-      if int(sample[i][startYear_index]) <= periods[k+1] and int(sample[i][startYear_index]) > periods[k]:
-        exp_result.append(k+1)
-  
-  result = list(map(int, result))
-  assert result == exp_result, 'function add_epoch_column returns wrong output'
+def test_add_epoch_column():
+
+  spark = SparkSession.builder.master("local[*]").getOrCreate()
+  df = spark.createDataFrame(
+      [
+          (1, 1900),
+          (2, 1917),
+          (3, 1925),
+          (4, 1938),
+          (5, 1953),
+          (6, 1969),
+          (7, 1984),
+          (8, 1993),
+          (9, 2008),
+          (10, 2022)
+      ],  
+      "id int, startYear int",
+  )
+
+  expect_df = spark.createDataFrame(
+      [
+          (1, 1900, "1"),
+          (2, 1917, "2"),
+          (3, 1925, "3"),
+          (4, 1938, "4"),
+          (5, 1953, "5"),
+          (6, 1969, "6"),
+          (7, 1984, "7"),
+          (8, 1993, "8"),
+          (9, 2008, "9"),
+          (10, 2022, "10")
+      ],  
+      "id int, startYear int, period string",
+  )
+
+  result = add_epoch_column(df)
+  assert_pyspark_df_equal(result, expect_df)

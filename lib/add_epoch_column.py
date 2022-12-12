@@ -2,6 +2,7 @@ from pyspark.sql.functions import col, when
 from pyspark.sql.dataframe import DataFrame
 
 def add_epoch_column(df: DataFrame) -> DataFrame:
+  #TODO dodać asercje sprawdzającą, czy startYear jest integerem
   periods = [1901,1918,1926,1939,1954,1970,1985,1994,2009]
   df_no_N = df.filter(df.startYear != "\\N")
 
