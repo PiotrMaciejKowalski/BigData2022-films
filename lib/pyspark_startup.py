@@ -12,6 +12,7 @@ def init() -> SparkSession:
 
 def load(spark: SparkSession, path: str = "") -> DataFrame:
     #TODO wprowadzić porządek obiektowy (utworzenie małej metody ładującej + utworzenie klasy przechowującej tabele) oraz dodanie logów
+    #TODO wykorzystac hydre do przetrzymywania sciezek oraz nazw tabel
     title_basics = spark.read.csv(path+"title.basics.tsv.gz", sep="\t", header=True).drop(
         "originalTitle"
     )
