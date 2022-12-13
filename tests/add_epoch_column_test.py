@@ -8,7 +8,7 @@ import pyspark
 from pyspark.sql import SparkSession, DataFrame
 from pyspark_test import assert_pyspark_df_equal
 
-from lib.add_epoch_column import add_epoch_column
+from lib.feature_creators import add_epoch_column
 
 def test_add_epoch_column():
 
@@ -42,7 +42,7 @@ def test_add_epoch_column():
           (9, 2008, "9"),
           (10, 2022, "10")
       ],  
-      "id int, rok_wydania_produkcji int, period string",
+      "id int, rok_wydania_produkcji int, epoka string",
   )
 
   result = add_epoch_column(df)
