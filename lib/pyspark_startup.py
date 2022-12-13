@@ -10,13 +10,13 @@ def init() -> SparkSession:
     spark = SparkSession.builder.master("local[*]").getOrCreate()
     return spark
 
-def load(spark: SparkSession) -> DataFrame:
+def load(spark: SparkSession, path: str = "") -> DataFrame:
     #TODO wprowadzić porządek obiektowy (utworzenie małej metody ładującej + utworzenie klasy przechowującej tabele) oraz dodanie logów
-    title_basics = spark.read.csv("title.basics.tsv.gz", sep="\t", header=True).drop(
+    title_basics = spark.read.csv(path+"title.basics.tsv.gz", sep="\t", header=True).drop(
         "originalTitle"
     )
     title_seasons = (
-        spark.read.csv("title.episode.tsv.gz", sep="\t", header=True)[
+        spark.read.csv(path+"title.episode.tsv.gz", sep="\t", header=True)[
             ["parentTconst", "seasonNumber"]
         ]
         .replace(to_replace="\\N", value=None)
@@ -24,16 +24,16 @@ def load(spark: SparkSession) -> DataFrame:
         .agg(countDistinct("seasonNumber"))
     )
     title_episode = (
-        spark.read.csv("title.episode.tsv.gz", sep="\t", header=True)[
+        spark.read.csv(path+"title.episode.tsv.gz", sep="\t", header=True)[
             ["parentTconst", "episodeNumber"]
         ]
         .replace(to_replace="\\N", value=None)
         .groupby("parentTconst")
         .count()
     )
-    title_ratings = spark.read.csv("title.ratings.tsv.gz", sep="\t", header=True)
+    title_ratings = spark.read.csv(path+"title.ratings.tsv.gz", sep="\t", header=True)
     title_principals = (
-        spark.read.csv("title.principals.tsv.gz", sep="\t", header=True)
+        spark.read.csv(path+"title.principals.tsv.gz", sep="\t", header=True)
         .select("tconst", "ordering", "nconst")
         .groupBy("tconst")
         .pivot("ordering")
