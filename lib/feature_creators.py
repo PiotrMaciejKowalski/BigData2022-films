@@ -1,4 +1,4 @@
-from pyspark.sql.functions import col, when, col
+from pyspark.sql.functions import col, when
 from pyspark.sql import DataFrame
 from typing import Optional,List
 
