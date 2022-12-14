@@ -1,3 +1,4 @@
+#TODO: Należy usunąc tę klasę, gdy pojawi się właściwa treść.
 import pytest
 
 from lib.sample_class import sample_function
