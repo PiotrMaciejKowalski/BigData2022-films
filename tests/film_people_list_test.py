@@ -6,10 +6,13 @@ import pytest
 import pyspark
 
 from pyspark.sql import SparkSession, DataFrame
+
 from lib.film_people_list import people_film_merge_columns
-#TODO zamienić na lib.feature_creators, gdy funkcja people_film_merge_columns pojawi się w tym pliku
+from lib.pyspark_startup import init
+
 def test_people_film_merge_column():
-  spark = SparkSession.builder.master("local[*]").getOrCreate()
+
+  spark = init()
   result_df = spark.createDataFrame(
       [
           ('tt0111161', 'nm0000209', 'nm0000151', 'nm0348409', 'nm0006669', 'nm0001104', 'nm0000175', 'nm0555550', 'nm0002353', 'nm0005683', 'nm0290358'),
