@@ -4,12 +4,16 @@ from pyspark.sql import DataFrame
 from typing import Union, List, Optional
 
 def people_film_merge_columns(df: DataFrame, film_id: str, add_column: Optional[bool] = False) -> Union[DataFrame,List[str]]:
-  
+  """
+  Funkcja  dla danej tabeli i id filmu zwraca listę z id ludzi, którzy współtworzyli 
+  daną produkcję (jeśli add_column = False) lub wstawia nową kolumnę do tabeli
+  z wierszem zawierającym tę listę (jeśli add_column = True).
+  """
   assert df.filter(df.id == film_id).rdd.isEmpty() == False
 
   df_film = df.filter(df.id == film_id)
 
-  people_column_names = ["{}".format(i+1) for i in range(10)]
+  people_column_names = [str(i+1) for i in range(10)]
 
   columns_to_merge = [f.col(column_name) for column_name in people_column_names]
 
