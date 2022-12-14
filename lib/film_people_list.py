@@ -1,4 +1,4 @@
-#TODO wstawić później tę funkcję do pliku feature_creators
+#TODO wstawić później tę funkcję do pliku feature_creators i usunąć ten plik
 import pyspark.sql.functions as f
 from pyspark.sql import DataFrame
 from typing import Union, List, Optional
