@@ -11,6 +11,7 @@ def one_hot_encoding(
 ) -> DataFrame:
     """Funkcja zwraca sparkowy DataFrame w którym wartości w wybranych kolumnach
     zostały zamienione na takie z kodowaniem zero-jednykowym w trybie 'sparse'.
+    Wartości w dodanych kolumnach są klasy pyspark.ml.linalg.SparseVector.
 
     Przykład: (3,[0],[1.0]) -> (1.0, 0, 0)
     3 - długość wektora,
@@ -26,9 +27,9 @@ def one_hot_encoding(
     out_cols = [x + "_ohe" for x in columns]
     out_num = [x + "_num" for x in columns]
 
-    assert columns in df.columns
-    assert out_cols not in df.columns
-    assert out_num not in df.columns
+    assert all(x in df.columns for x in columns)
+    assert all(x not in df.columns for x in out_cols)
+    assert all(x not in df.columns for x in out_num)
 
     df_num = (
         StringIndexer(inputCols=columns, outputCols=out_num)

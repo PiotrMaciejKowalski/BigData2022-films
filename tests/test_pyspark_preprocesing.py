@@ -1,5 +1,8 @@
-import pytest
+import findspark
 
+findspark.init()
+
+from pyspark_test import assert_pyspark_df_equal
 from pyspark.ml.linalg import SparseVector
 from lib.pyspark_preprocesing import one_hot_encoding
 from lib.pyspark_startup import init
@@ -21,4 +24,4 @@ def test_one_hot_encoding():
         ["inp2", "inp1_ohe", "inp3_ohe"],
     )
 
-    assert result.take(3) == exp_result.take(3)
+    assert_pyspark_df_equal(result, exp_result)
