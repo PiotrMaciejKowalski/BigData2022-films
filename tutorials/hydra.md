@@ -1,25 +1,25 @@
-Tutorial: Learning Hydra for configuring ML experiments - Simone Scardapane
+Tutorial: Hydra dla projektów Data Science
 =======================================================
 
-9 minut czytania
+Celem tego poradnika jest krótkie wprowadzenie do narzędzia Hydra. Omówiono w nim podstawowe operacje bazując na materiale [Configuration Management For Data Science Made Easy With Hydra](https://www.youtube.com/watch?v=tEsPyYnzt8s).
 
-Ten post jest przeznaczony jako krótkie, samodzielne wprowadzenie do narzędzia Hydra. Omówiono w nim wiele tematów, w tym jak tworzyć obiekty klas, uruchamiać przeszukiwanie parametrów i sprawdzać poprawność konfiguracji w czasie pracy. Wprowadzenie nie obejmuje pełnego zakresu opcji oferowanych przez Hydrę. W tym celu należy zgłębić [oryginalną dokumentację](https://hydra.cc/docs/next/intro).
-
-> 🔗 Kod dla tego tutoriala jest dostępny na repozytorium GitHub: [https://github.com/sscardapane/hydra-tutorial](https://github.com/sscardapane/hydra-tutorial).
+> 🔗 Kod dla tego tutoriala jest dostępny na repozytorium GitHub: [https://github.com/ArjanCodes/2021-config](https://github.com/ArjanCodes/2021-config).
 
 Instalacja i przegląd
--------------------------
+------------------------------------------------------
 
 Będziemy korzystać z wersji 1.3 (stable) biblioteki Hydra, którą można zainstalować poprzez:
 ```
 pip install hydra-core --upgrade
 ```
 
-> ⚠️ Uwaga: kilka poniższych instrukcji nie będzie działać poprawnie na poprzednich wersjach biblioteki. Wszystkie zmiany pomiędzy wersjami są udokumentowane [na stronie twórców](https://hydra.cc/docs/next/upgrades/1.0_to_1.1/changes_to_hydra_main_config_path).
+Wprowadzenie
+------------------------------------------------------
+> "Hydra jest to framework typu open-source, który upraszcza rozwój badań i innych złożonych aplikacji. Kluczową cechą jest możliwość dynamicznego tworzenia hierarchicznej konfiguracji przez kompozycję i nadpisywania jej poprzez pliki konfiguracyjne i linię poleceń. Nazwa Hydra pochodzi od jej zdolności do uruchamiania wielu podobnych zadań - bardzo podobnie jak Hydra z wieloma głowami." [hydra.cc/docs/intro/](https://hydra.cc/docs/intro/)
 
-Część kodu oparta jest na [PyTorch](https://pytorch.org/), ale można go łatwo dostosować do innych frameworków głębokiego uczenia. Rozważamy klasyczny scenariusz dostrajania, w którym dostrajamy mały model klasyfikacyjny na wierzchu wstępnie wytrenowanej konwencjonalnej sieci neuronowej. Nasza ostateczna konfiguracja będzie wyglądać tak (rysunek może z początku wydawać się niejasny):
+**<font size = "5"><center>Przykład struktury Hydry dla modelu CNN</center></font>**
 
-![Alt text](hydra.jpg)
+![Alt text](hydra_files/hydra.jpg)
 
 Po lewej stronie mamy szereg plików konfiguracyjnych, opisujących kolejno:
 
@@ -31,20 +31,214 @@ W centrum, Hydra automatycznie ładuje i komponuje nasze pliki konfiguracyjne, d
 
 Po prawej stronie, nasz skrypt treningowy wykorzystuje wynikowy obiekt słownikowy do budowy naszego modelu.
 
-Będziemy budować tę konfigurację krok po kroku, poznając po kolei kilka funkcjonalności Hydry. Mając to na uwadze, zaczynajmy!
+> ⚠️ Uwaga: Będziemy usprawniać gotowy projekt dla modelu [LinearNet()](https://github.com/ArjanCodes/2021-config/tree/main/before).
 
-Pierwszy krok: manipulowanie plikiem YAML
--------------------------------------
+main.py
+------------------------------------------------------
+Plik `main.py` będzie plikiem, który z wykrzystaniem torch'a oraz modułów z wewnątrz projektu:
+- buduje model klasyfikacyjny typu LinearNet(),
+- ładuje dane (zbiór MNIST),
+- przeprowadza wielokrotne uczenie modelu,
+- wyświetla uśrednione metryki.
+```
+# import zewnętrznych bibliotek
+import pathlib
+import torch
 
-Podczas gdy istnieje [ogromna liczba](https://github.com/vinta/awesome-python#configuration) sposobów na określenie pliku konfiguracyjnego, Hydra pracuje z plikami YAML. Zaczynamy od stworzenia prostego pliku `config.yaml` zawierającego kilka szczegółów dotyczących naszego (fałszywego) zbioru danych obrazkowych:
+# import modułów z wewnątrz projektu
+from ds.dataset import create_dataloader
+from ds.models import LinearNet
+from ds.runner import Runner, run_epoch
+from ds.tracking import TensorboardExperiment
+
+# Hiperparametry dla modelu
+EPOCH_COUNT = 20
+LR = 5e-5
+BATCH_SIZE = 128
+LOG_PATH = "./runs"
+
+# Ścieżki do danych
+DATA_DIR = "../data/raw"
+TEST_DATA = pathlib.Path(f"{DATA_DIR}/t10k-images-idx3-ubyte.gz")
+TEST_LABELS = pathlib.Path(f"{DATA_DIR}/t10k-labels-idx1-ubyte.gz")
+TRAIN_DATA = pathlib.Path(f"{DATA_DIR}/train-images-idx3-ubyte.gz")
+TRAIN_LABELS = pathlib.Path(f"{DATA_DIR}/train-labels-idx1-ubyte.gz")
+
+# aplikacja uruchamiająca całą procedurę modelu (załadowanie danych -> uczenie modelu -> wyświetlenie metryk)
+def main():
+
+    # Model + optymalizator
+    model = LinearNet()
+    optimizer = torch.optim.Adam(model.parameters(), lr=LR)
+
+    # customowa funkcja ładowania danych MNIST
+    test_loader = create_dataloader(BATCH_SIZE, TEST_DATA, TEST_LABELS)
+    train_loader = create_dataloader(BATCH_SIZE, TRAIN_DATA, TRAIN_LABELS)
+
+    # customowa funkcja "dopasowująca" model do danych
+    test_runner = Runner(test_loader, model)
+    train_runner = Runner(train_loader, model, optimizer)
+
+    # customowa funkcja śledzenia wyników modelu
+    tracker = TensorboardExperiment(log_path=LOG_PATH)
+
+    # iteracyjne uczenie modelu (ze względu na zadany parametr EPOCH_COUNT)
+    for epoch_id in range(EPOCH_COUNT):
+        # customowa funkcja uruchamiająca uczenie modelu
+        run_epoch(test_runner, train_runner, tracker, epoch_id)
+
+        # wyliczanie uśrednionych metryk z wykonanych epok
+        summary = ", ".join(
+            [
+                f"[Epoch: {epoch_id + 1}/{EPOCH_COUNT}]",
+                f"Test Accuracy: {test_runner.avg_accuracy: 0.4f}",
+                f"Train Accuracy: {train_runner.avg_accuracy: 0.4f}",
+            ]
+        )
+        print("\n" + summary + "\n")
+
+        # Reset the runners
+        train_runner.reset()
+        test_runner.reset()
+
+        # Flush the tracker after every epoch for live updates
+        tracker.flush()
+
+
+if __name__ == "__main__":
+    main()
+```
+
+Pierwsze co możemy dostrzec, jest zbędność plików konfiguracyjnych. W celu wyczyszczenia `main.py`, przeniesiemy nasze hiperparametry oraz ścieżki do oddzielnego pliku typu `.yaml`.
+
+config.yaml
+------------------------------------------------------
+Najlepszą praktyką jest utworzenie dodatkowego folderu konfiguracyjnego w projekcie, przechowującego wszystkie pliki konfiguracyjne. Plik konfiguracyjny `config.yaml` dla naszego projektu będzie wyglądał następująco:
 ```
 # config.yaml
-dataset:
-    image:
-    size: 124
-    channels: 3
-    classes: 10
+params:
+    epoch_count = 20
+    lr = 5e-5
+    batch_size = 128
 ``` 
+Tym sposobem, utworzyliśmy plik konfiguracyjny z grupą o nazwie `params` oraz z zadanymi dla tej grupy trzema wartościami.
+> Należy pamiętać, aby wszelkie wartości w pliku konfiguracyjnym zapisywać **małymi literami!**
+
+Jak to wpłynie na `main.py`?
+```
+# import zewnętrznych bibliotek
+import pathlib
+import torch
+
+import hydra # IMPORTOWANIE BIBLIOTEKI HYDRA
+
+# import modułów z wewnątrz projektu
+from ds.dataset import create_dataloader
+from ds.models import LinearNet
+from ds.runner import Runner, run_epoch
+from ds.tracking import TensorboardExperiment
+
+# Hiperparametry dla modelu
+DATA_DIR = "../data/raw"
+
+# Ścieżki do danych
+TEST_DATA = pathlib.Path(f"{DATA_DIR}/t10k-images-idx3-ubyte.gz")
+TEST_LABELS = pathlib.Path(f"{DATA_DIR}/t10k-labels-idx1-ubyte.gz")
+TRAIN_DATA = pathlib.Path(f"{DATA_DIR}/train-images-idx3-ubyte.gz")
+TRAIN_LABELS = pathlib.Path(f"{DATA_DIR}/train-labels-idx1-ubyte.gz")
+
+# aplikacja uruchamiająca całą procedurę modelu (załadowanie danych -> uczenie modelu -> wyświetlenie metryk)
+@hydra.main(config_path="conf", config_name="config") # WYKORZYSTANIE DEKORATORA, ABY WSKAZAĆ MIEJSCE POŁOŻENIA PLIKU KONFIGURACYJNEGO (config_path) ORAZ JEGO NAZWY (config_name)
+def main(cfg):
+
+    # Model + optymalizator
+    model = LinearNet()
+    optimizer = torch.optim.Adam(model.parameters(), lr=LR)
+
+    # customowa funkcja ładowania danych MNIST
+    test_loader = create_dataloader(BATCH_SIZE, TEST_DATA, TEST_LABELS)
+    train_loader = create_dataloader(BATCH_SIZE, TRAIN_DATA, TRAIN_LABELS)
+
+    # customowa funkcja "dopasowująca" model do danych
+    test_runner = Runner(test_loader, model)
+    train_runner = Runner(train_loader, model, optimizer)
+
+    # customowa funkcja śledzenia wyników modelu
+    tracker = TensorboardExperiment(log_path=LOG_PATH)
+
+    # iteracyjne uczenie modelu (ze względu na zadany parametr EPOCH_COUNT)
+    for epoch_id in range(EPOCH_COUNT):
+        # customowa funkcja uruchamiająca uczenie modelu
+        run_epoch(test_runner, train_runner, tracker, epoch_id)
+
+        # wyliczanie uśrednionych metryk z wykonanych epok
+        summary = ", ".join(
+            [
+                f"[Epoch: {epoch_id + 1}/{EPOCH_COUNT}]",
+                f"Test Accuracy: {test_runner.avg_accuracy: 0.4f}",
+                f"Train Accuracy: {train_runner.avg_accuracy: 0.4f}",
+            ]
+        )
+        print("\n" + summary + "\n")
+
+        # Reset the runners
+        train_runner.reset()
+        test_runner.reset()
+
+        # Flush the tracker after every epoch for live updates
+        tracker.flush()
+
+
+if __name__ == "__main__":
+    main()
+```
+Jak widzimy, linijki zawierające hiperparametry zoztały przeniesione do pliku konfiguracyjnego. Dodatkowo, pojawił się parametr `cfg`, który oznacza, że Hydra automatycznie wprowadzi parametry z pliku `config.yaml` do funkcji `main()`.
+
+Przenieśmy również ścieżki do pliku konfiguracyjnego. W tym celu dodamy kolejną grupę `files`.
+
+```
+# config.yaml
+files:
+    test_data: t10k-images-idx3-ubyte.gz
+    test_labels: t10k-labels-idx1-ubyte.gz
+    train_data: train-images-idx3-ubyte.gz
+    train_labels: train-labels-idx1-ubyte.gz
+params:
+    epoch_count = 20
+    lr = 5e-5
+    batch_size = 128
+``` 
+
+https://youtu.be/tEsPyYnzt8s?t=715
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Podczas gdy istnieje [ogromna liczba](https://github.com/vinta/awesome-python#configuration) sposobów na określenie pliku konfiguracyjnego, Hydra pracuje z plikami YAML. Zaczynamy od stworzenia prostego pliku `config.yaml` zawierającego kilka szczegółów dotyczących naszego (fałszywego) zbioru danych obrazkowych:
+
 
 [OmegaConf](https://omegaconf.readthedocs.io/en/2.0_branch/) jest prostą biblioteką umożliwiającą dostęp i manipulowanie plikami konfiguracyjnymi YAML:
 ```
@@ -100,7 +294,7 @@ python main.py dataset.classes=15
 Składnia pozwala również na [dodawanie lub usuwanie parametrów](https://hydra.cc/docs/next/advanced/override_grammar/basic) używając odpowiednio `+parameter_to_add` oraz `~parameter_to_remove`.
 
 Manipulowanie rejestratorami i katalogami roboczymi
---------------------------------------------
+------------------------------------------------------
 
 Domyślnie Hydra wykonuje każdy skrypt w innym katalogu, aby uniknąć nadpisywania wyników z różnych uruchomień. Domyślna nazwa katalogu to `outputs/<day>/<time>/`.
 
@@ -133,7 +327,7 @@ python main.py hydra.run.dir='outputs/custom_folder'
 Jeśli chcesz nadpisać konfigurację dla dowolnego uruchomienia skryptu, możesz dodać ją do pliku konfiguracyjnego. Na przykład, aby [zmodyfikować wyjście rejestratora](https://hydra.cc/docs/next/configure_hydra/logging).
 
 Ładowanie konfiguracji poza skryptem
----------------------------------------------
+------------------------------------------------------
 
 Czasami możemy potrzebować załadować nasz plik konfiguracyjny poza główną funkcją. Choć możemy to zrobić za pomocą `OmegaConf`, nie zapewnia on wszystkich funkcji dostępnych w Hydrze, w tym większości tego, co wprowadzimy w dalszej części.
 
@@ -159,7 +353,7 @@ hydra.core.global_hydra.GlobalHydra.instance().clear()
 Parametry mogą być również nadpisywane podczas komponowania konfiguracji, jak pokazano w przykładzie poniżej.    
 
 Tworzenie instacji obiektów
----------------------
+------------------------------------------------------
 
 Kontunuując konfigurację naszego pliku. Następnym krokiem jest skonfigurowanie szczegółów naszej wstępnie wytrenowanej sieci. Ponieważ istnieje [duża liczba wstępnie wytrenowanych sieci konwolucyjnych](https://pytorch.org/vision/stable/models.html) wewnątrz PyTorcha, chcielibyśmy pozostawić ten wybór jako hiper-parametr.
 
@@ -189,7 +383,7 @@ Nie wymaga to żadnych zmian w naszym skrypcie treningowym, ponieważ wszystkie 
 Trochę o [programowaniu obiektowym](https://www.kodolamacz.pl/blog/wyzwanie-python-4-programowanie-obiektowe/) w prostym języku.
 
 Interpolacja zmiennych
-----------------------
+------------------------------------------------------
 
 Następnie musimy skonfigurować nasz mały klasyfikator "na szczycie" wstępnie wytrenowanej sieci. Aby to uprościć, możemy skorzystać z kilku przydatnych rzeczy wprowadzonych w najnowszym wydaniu Hydry:
 
@@ -244,7 +438,7 @@ print(OmegaConf.to_yaml(cfg.classifier, resolve=True))
 ```
 
 Grupy konfiguracyjne
---------------------
+------------------------------------------------------
 
 W praktyce chcielibyśmy mieć wiele plików konfiguracyjnych, określających różne typy modeli, np. powyższy mały klasyfikator i większy, złożony z większej liczby warstw. Możemy to osiągnąć za pomocą [grup konfiguracyjnych Hydry](https://hydra.cc/docs/next/tutorials/structured_config/config_groups).
 
@@ -270,7 +464,7 @@ python main.py classifier=large
 ```
 
 Inicjownie wielu wywołań
------------------------
+------------------------------------------------------
 
 Jedną z interesujących konsekwencji posiadania niezależnych folderów dla każdego wywołania jest to, że możemy łatwo przeprowadzić wiele eksperymentów poprzez *sweeping* (zamiatanie) nad pewnymi parametrami, a następnie analizować wyniki patrząc na każdy folder po kolei. Na przykład, możemy uruchomić dwa wywołania z dwoma klasyfikatorami w następujący sposób:
 ```
@@ -286,7 +480,7 @@ python main.py -m classifier=small,large
 Flaga `-m` (alternatywnie, `--multi-run`) instruuje Hydrę do wykonania *sweepingu*. Istnieją [różne sposoby](https://hydra.cc/docs/next/tutorials/basic/running_your_app/multi-run) na określenie zakresu *"sweepingu* oprócz listy. Hydra obsługuje także wiele zewnętrznych *launcherów i sweeperów*, które nie są opisane w tym poście.
 
 Walidacja konfiguracji za pomocą schematu
-------------------------------------------
+------------------------------------------------------
 
 Zakończymy przegląd Hydry interesującą możliwością *walidacji* podczas wywołania parametrów poprzez określenie *schematu konfiguracji*.
 
