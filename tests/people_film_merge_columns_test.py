@@ -7,7 +7,7 @@ import pyspark
 
 from pyspark.sql import SparkSession, DataFrame
 from lib.film_people_list import people_film_merge_columns
-
+#TODO zamienić na lib.feature_creators, gdy funkcja people_film_merge_columns pojawi się w tym pliku
 def test_people_film_merge_column():
   spark = SparkSession.builder.master("local[*]").getOrCreate()
   result_df = spark.createDataFrame(
