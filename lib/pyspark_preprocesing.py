@@ -10,8 +10,10 @@ def one_hot_encoding(
     drop_cols: bool = True,
 ) -> DataFrame:
     """Funkcja zwraca sparkowy DataFrame w którym wartości w wybranych kolumnach
-    zostały zamienione na takie z kodowaniem zero-jednykowym w trybie 'sparse'.
-    Wartości w dodanych kolumnach są klasy pyspark.ml.linalg.SparseVector.
+    zostały zamienione na takie z kodowaniem zero-jednykowym w trybie 'sparse'
+    w nowych kolumnach z nazwami z dopiskiem '_ohe'. Na chwilę tworzone są też
+    pomocnicze kolumny o nazwach z dopiskiem '_num'. Wartości w dodanych
+    kolumnach są klasy pyspark.ml.linalg.SparseVector.
 
     Przykład: (3,[0],[1.0]) -> (1.0, 0, 0)
     3 - długość wektora,
