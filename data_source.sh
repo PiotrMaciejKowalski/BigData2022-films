@@ -10,3 +10,4 @@ then
     wget "https://datasets.imdbws.com/title.ratings.tsv.gz" -O $DIR/title.ratings.tsv.gz
 else
     echo "$DIR directory does not exist"
+fi
