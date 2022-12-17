@@ -13,8 +13,11 @@ def init() -> SparkSession:
 
 def load(spark: SparkSession) -> DataFrame:
     # TODO wprowadzić porządek obiektowy (utworzenie małej metody ładującej + utworzenie klasy przechowującej tabele) oraz dodanie logów
-    title_basics = spark.read.csv("title.basics.tsv.gz", sep="\t", header=True).drop(
-        "originalTitle"
+    title_basics = (
+        spark.read.csv("title.basics.tsv.gz", sep="\t", header=True)
+        .drop("originalTitle")
+        .replace(to_replace=r"\D", value="")
+        .replace(to_replace="\\N", value=None)
     )
     title_seasons = (
         spark.read.csv("title.episode.tsv.gz", sep="\t", header=True)[
@@ -31,14 +34,15 @@ def load(spark: SparkSession) -> DataFrame:
         .replace(to_replace="\\N", value=None)
         .groupby("parentTconst")
         .count()
+        .replace(to_replace="\\N", value=None)
     )
-    title_ratings = spark.read.csv("title.ratings.tsv.gz", sep="\t", header=True)
     title_principals = (
         spark.read.csv("title.principals.tsv.gz", sep="\t", header=True)
         .select("tconst", "ordering", "nconst")
         .groupBy("tconst")
         .pivot("ordering")
         .agg(first("nconst"))
+        .replace(to_replace="\\N", value=None)
     )
 
     data = (
@@ -62,8 +66,6 @@ def load(spark: SparkSession) -> DataFrame:
             "gatunek",
             "liczba_sezonow",
             "liczba_wszystkich_odcinkow",
-            "ocena",
-            "liczba_glosow",
             "1",
             "10",
             "2",
@@ -75,6 +77,6 @@ def load(spark: SparkSession) -> DataFrame:
             "8",
             "9",
         )
-    ).replace(to_replace="\\N", value=None)
+    )
 
     return data
