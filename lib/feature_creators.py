@@ -1,27 +1,39 @@
 from pyspark.sql.functions import col, when
 from pyspark.sql import DataFrame
-from typing import Optional,List
+from functools import reduce
+from typing import List, Optional
 
-DEFAULT_PERIODS = [1901,1918,1926,1939,1954,1970,1985,1994,2009]
+DEAFULT_PERIODS = [1901,1918,1926,1939,1954,1970,1985,1994,2009]
 
 def add_epoch_column(df: DataFrame, periods: Optional[List[int]] = None) -> DataFrame:
-
-  if periods is None:
-    periods = DEFAULT_PERIODS
 
   assert df.filter(df.rok_wydania_produkcji == "\\N").count() == 0
   assert dict(df.dtypes)["rok_wydania_produkcji"] == "int"
 
-  df_periods = df.withColumn('epoka',
-                             when(col('rok_wydania_produkcji') <= periods[0], "1")
-                             .when(col('rok_wydania_produkcji') <= periods[1], "2")
-                             .when(col('rok_wydania_produkcji') <= periods[2], "3")
-                             .when(col('rok_wydania_produkcji') <= periods[3], "4")
-                             .when(col('rok_wydania_produkcji') <= periods[4], "5")
-                             .when(col('rok_wydania_produkcji') <= periods[5], "6")
-                             .when(col('rok_wydania_produkcji') <= periods[6], "7")
-                             .when(col('rok_wydania_produkcji') <= periods[7], "8")
-                             .when(col('rok_wydania_produkcji') <= periods[8], "9")
-                             .otherwise("10"))
-   
+  if periods == None:
+    periods = DEAFULT_PERIODS
+
+  assert len(periods) > 0
+
+  periods_count = len(periods)
+
+  formulas = [
+
+    (col('rok_wydania_produkcji') <= period, str(index+1))
+
+    for period, index
+    in zip(periods, range(periods_count))
+
+    ]
+
+  otherwise_value = len(periods) + 1  
+  condition = when( *(formulas[0]))
+
+  for formula in formulas[1:]:
+    condition = condition.when(*formula)
+
+  condition = condition.otherwise(otherwise_value)
+
+  df_periods = df.withColumn('epoka',condition)  
+
   return df_periods
