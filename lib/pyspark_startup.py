@@ -52,7 +52,6 @@ def load(spark: SparkSession) -> DataFrame:
         .join(
             title_episode, title_basics.tconst == title_episode.parentTconst, how="left"
         )
-        .join(title_ratings, ["tconst"], how="left")
         .drop("parentTconst")
         .join(title_principals, ["tconst"], how="left")
         .toDF(
