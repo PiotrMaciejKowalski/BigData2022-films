@@ -10,8 +10,9 @@ def init() -> SparkSession:
     spark = SparkSession.builder.master("local[*]").getOrCreate()
     return spark
 
+
 def load(spark: SparkSession) -> DataFrame:
-    #TODO wprowadzić porządek obiektowy (utworzenie małej metody ładującej + utworzenie klasy przechowującej tabele) oraz dodanie logów
+    # TODO wprowadzić porządek obiektowy (utworzenie małej metody ładującej + utworzenie klasy przechowującej tabele) oraz dodanie logów
     title_basics = spark.read.csv("title.basics.tsv.gz", sep="\t", header=True).drop(
         "originalTitle"
     )
@@ -74,6 +75,6 @@ def load(spark: SparkSession) -> DataFrame:
             "8",
             "9",
         )
-    )
+    ).replace(to_replace="\\N", value=None)
 
     return data
