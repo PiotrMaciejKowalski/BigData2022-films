@@ -2,7 +2,6 @@ import pytest
 
 from lib.metrics import intersection_over_union
 
-
 def test_intersection_over_union():
     result = round(
         intersection_over_union(
