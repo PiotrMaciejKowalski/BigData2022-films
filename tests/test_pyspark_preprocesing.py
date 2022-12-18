@@ -2,9 +2,9 @@ import findspark
 
 findspark.init()
 
-from pyspark_test import assert_pyspark_df_equal, normalize_by_group
+from pyspark_test import assert_pyspark_df_equal
 from pyspark.ml.linalg import SparseVector
-from lib.pyspark_preprocesing import one_hot_encoding
+from lib.pyspark_preprocesing import one_hot_encoding, normalize_by_group
 from lib.pyspark_startup import init
 
 
