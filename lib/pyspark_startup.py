@@ -11,16 +11,14 @@ def init() -> SparkSession:
     return spark
 
 
-def load(spark: SparkSession) -> DataFrame:
+def load(spark: SparkSession, path: str = "") -> DataFrame:
     # TODO wprowadzić porządek obiektowy (utworzenie małej metody ładującej + utworzenie klasy przechowującej tabele) oraz dodanie logów
-    title_basics = (
-        spark.read.csv("title.basics.tsv.gz", sep="\t", header=True)
-        .drop("originalTitle")
-        .replace(to_replace=r"\D", value="")
-        .replace(to_replace="\\N", value=None)
-    )
+    # TODO wykorzystac hydre do przetrzymywania sciezek oraz nazw tabel
+    title_basics = spark.read.csv(
+        path + "title.basics.tsv.gz", sep="\t", header=True
+    ).drop("originalTitle")
     title_seasons = (
-        spark.read.csv("title.episode.tsv.gz", sep="\t", header=True)[
+        spark.read.csv(path + "title.episode.tsv.gz", sep="\t", header=True)[
             ["parentTconst", "seasonNumber"]
         ]
         .replace(to_replace="\\N", value=None)
@@ -28,21 +26,20 @@ def load(spark: SparkSession) -> DataFrame:
         .agg(countDistinct("seasonNumber"))
     )
     title_episode = (
-        spark.read.csv("title.episode.tsv.gz", sep="\t", header=True)[
+        spark.read.csv(path + "title.episode.tsv.gz", sep="\t", header=True)[
             ["parentTconst", "episodeNumber"]
         ]
         .replace(to_replace="\\N", value=None)
         .groupby("parentTconst")
         .count()
-        .replace(to_replace="\\N", value=None)
     )
+    title_ratings = spark.read.csv(path + "title.ratings.tsv.gz", sep="\t", header=True)
     title_principals = (
-        spark.read.csv("title.principals.tsv.gz", sep="\t", header=True)
+        spark.read.csv(path + "title.principals.tsv.gz", sep="\t", header=True)
         .select("tconst", "ordering", "nconst")
         .groupBy("tconst")
         .pivot("ordering")
         .agg(first("nconst"))
-        .replace(to_replace="\\N", value=None)
     )
 
     data = (
@@ -52,6 +49,7 @@ def load(spark: SparkSession) -> DataFrame:
         .join(
             title_episode, title_basics.tconst == title_episode.parentTconst, how="left"
         )
+        .join(title_ratings, ["tconst"], how="left")
         .drop("parentTconst")
         .join(title_principals, ["tconst"], how="left")
         .toDF(
@@ -65,6 +63,8 @@ def load(spark: SparkSession) -> DataFrame:
             "gatunek",
             "liczba_sezonow",
             "liczba_wszystkich_odcinkow",
+            "ocena",
+            "liczba_glosow",
             "1",
             "10",
             "2",
