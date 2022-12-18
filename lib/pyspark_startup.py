@@ -65,8 +65,6 @@ def load(spark: SparkSession, path: str = "") -> DataFrame:
             "gatunek",
             "liczba_sezonow",
             "liczba_wszystkich_odcinkow",
-            "ocena",
-            "liczba_glosow",
             "1",
             "10",
             "2",
