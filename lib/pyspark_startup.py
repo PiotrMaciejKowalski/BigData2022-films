@@ -14,9 +14,12 @@ def init() -> SparkSession:
 def load(spark: SparkSession, path: str = "") -> DataFrame:
     # TODO wprowadzić porządek obiektowy (utworzenie małej metody ładującej + utworzenie klasy przechowującej tabele) oraz dodanie logów
     # TODO wykorzystac hydre do przetrzymywania sciezek oraz nazw tabel
-    title_basics = spark.read.csv(
-        path + "title.basics.tsv.gz", sep="\t", header=True
-    ).drop("originalTitle")
+    title_basics = (
+        spark.read.csv(path + "title.basics.tsv.gz", sep="\t", header=True)
+        .drop("originalTitle")
+        .replace(to_replace=r"\D", value="")
+        .replace(to_replace="\\N", value=None)
+    )
     title_seasons = (
         spark.read.csv(path + "title.episode.tsv.gz", sep="\t", header=True)[
             ["parentTconst", "seasonNumber"]
@@ -33,13 +36,13 @@ def load(spark: SparkSession, path: str = "") -> DataFrame:
         .groupby("parentTconst")
         .count()
     )
-    title_ratings = spark.read.csv(path + "title.ratings.tsv.gz", sep="\t", header=True)
     title_principals = (
         spark.read.csv(path + "title.principals.tsv.gz", sep="\t", header=True)
         .select("tconst", "ordering", "nconst")
         .groupBy("tconst")
         .pivot("ordering")
         .agg(first("nconst"))
+        .replace(to_replace="\\N", value=None)
     )
 
     data = (
@@ -49,7 +52,6 @@ def load(spark: SparkSession, path: str = "") -> DataFrame:
         .join(
             title_episode, title_basics.tconst == title_episode.parentTconst, how="left"
         )
-        .join(title_ratings, ["tconst"], how="left")
         .drop("parentTconst")
         .join(title_principals, ["tconst"], how="left")
         .toDF(
