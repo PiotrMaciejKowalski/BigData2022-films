@@ -74,13 +74,12 @@ def normalize_by_group(
 
     assert all(x in df.columns for x in group_by)
     assert all(x in df.columns for x in normalize)
-    assert all(x not in df.columns for x in ["avg_" + x for x in normalize])
-    assert all(x not in df.columns for x in ["stdev_" + x for x in normalize])
+    assert all(x not in df.columns for x in [f"avg_{x}" for x in normalize])
+    assert all(x not in df.columns for x in [f"stdev_{x}" for x in normalize])
 
     df.createOrReplaceTempView("tmp_view")
     select_col = group_by + [
-        "stddev(" + x + ") as stdev_" + x + ", avg(" + x + ") as avg_" + x
-        for x in normalize
+        f"stddev({x}) as stdev_{x}, avg({x}) as avg_{x}" for x in normalize
     ]
     sql_str = (
         "select "
@@ -95,7 +94,7 @@ def normalize_by_group(
     tmp_df.createOrReplaceTempView("tmp_view2")
 
     norm_cols = [
-        "(" + x + " - avg_" + x + ") / stdev_" + x + " as norm_" + x for x in normalize
+        f"({x} - avg_{x}) / stdev_{x} as norm_{x}" for x in normalize
     ]
 
     sql_str = (
