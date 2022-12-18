@@ -9,7 +9,7 @@ def people_film_merge_columns(df: DataFrame, film_id: str, add_column: Optional[
   daną produkcję (jeśli add_column = False) lub wstawia nową kolumnę do tabeli
   z wierszem zawierającym tę listę (jeśli add_column = True).
   """
-  assert df.filter(df.id == film_id).rdd.isEmpty() == False
+  assert df.filter(df.id == film_id).count() > 0
 
   df_film = df.filter(df.id == film_id)
 
