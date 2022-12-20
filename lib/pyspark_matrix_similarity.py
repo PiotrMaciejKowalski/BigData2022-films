@@ -2,7 +2,7 @@ from pyspark.ml.feature import StringIndexer, OneHotEncoder
 from pyspark.sql import DataFrame
 from typing import List, Literal
 from pyspark.ml.feature import VectorAssembler
-from pyspark_matrix_similarity import cosineSimilarity
+from lib.pyspark_cosinus_similarity import cosineSimilarity
 import numpy as np
 def cosine_similarity_for_row(
     df: DataFrame,
@@ -29,6 +29,3 @@ def cosine_similarity_for_row(
 
     return np.array([row[0] for row in sims])
 
-
-def cosineSimilarity():
-    return None
