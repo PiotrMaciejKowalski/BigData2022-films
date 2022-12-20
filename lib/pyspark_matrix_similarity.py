@@ -1,26 +1,34 @@
 from pyspark.ml.feature import StringIndexer, OneHotEncoder
 from pyspark.sql import DataFrame
 from typing import List, Literal
-from pyspark_preprocesing import one_hot_encoding
-
-
-def similarity_matrix(
+from pyspark.ml.feature import VectorAssembler
+from pyspark_matrix_similarity import cosineSimilarity
+import numpy as np
+def cosine_similarity_for_row(
     df: DataFrame,
-
+    movie_id: str,
 ) -> DataFrame:
-    """Funkcja zwraca sparkowy DataFrame w którym wartości w wybranych kolumnach
-    zostały zamienione na takie z kodowaniem zero-jednykowym w trybie 'sparse'
-    w nowych kolumnach z nazwami z dopiskiem '_ohe'. Na chwilę tworzone są też
-    pomocnicze kolumny o nazwach z dopiskiem '_num'. Wartości w dodanych
-    kolumnach są klasy pyspark.ml.linalg.SparseVector.
-
-    Przykład: (3,[0],[1.0]) -> (1.0, 0, 0)
-    3 - długość wektora,
-    [1.0] - jaka liczb znajduje się w wektorze poza zerami,
-    [0] - pozycja na której znajduje się liczba 1.0
+    """This function returns a Spark dataframe that contains similarity calculations for the given movie_id.
+       There should not be any null values in the DataFrame, and all categorical values should be one-hot encoded.
+       All other numeric values, such as Year, rating should be normalized.
 
     :param df:              pyspark.sql.DataFrame
-    :param columns:         lista kolumn do zakodowania
-    :param on_exception:    obsługa wyjątków w setHandleInvalid()
-    :param drop_cols:       usunięcie orginalnych kolumn
+    :param columns:         String
     :return:                pyspark.sql.DataFrame"""
+
+    row_df = df.filter(df.index == movie_id)
+
+
+    vector_assembler = VectorAssembler(inputCols=df.columns, outputCol="features")
+    vectorized_df = vector_assembler.transform(row_df)
+
+    cosine_similarity = cosineSimilarity(inputCol="features", outputCol="sim")
+    sim_df = cosine_similarity.transform(vectorized_df)
+
+    sims = sim_df.select("sim").collect()
+
+    return np.array([row[0] for row in sims])
+
+
+def cosineSimilarity():
+    return None
