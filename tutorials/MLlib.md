@@ -1,8 +1,10 @@
 # Wstęp do pakietu MLlib
 
 Choć domyślnym sposobem pracy we współczesnych modelach analizy danych jest 
-budowanie ich w Pythonie, to czasami nie jest możliwe np. przy wdrążeniu modelu do produkcji. 
-Apache Spark jest jednym z narzędzi o największych możliwościach przetwarzania. 
+budowanie ich w Pythonie, to czasami nie jest możliwe np. gdy mamy do przetworzenia
+duże ilości danych. W takich przypadkach należy rozważyć użycie Apache Spark, 
+który daje możliwości modelowania w środowisku rozproszonym oraz jest jednym z 
+narzędzi o największych możliwościach przetwarzania. 
 
 W tym tutorialu pokażemy jak używać pakietu MLlib oraz zademonstrujemy kilka
 prostych modeli ML na przykładzie zbioru Iris. Więcej informacji o pakiecie 
@@ -149,11 +151,68 @@ trained_model.summary.accuracy
 ```commandline
 0.9779411764705882
 ```
-Widzimy, że accuracy wyniosło w tym przypadku ponad 97%.
+Widzimy, że accuracy wyniosło w tym przypadku ponad 97%. \
+Jeśli chcielibyśmy ewaluować nasz model oraz dobrać odpowiednie parametry to 
+możemy to zrobić za pomocą klasy `TrainValidationSplit`.
+
+```python
+from pyspark.ml.classification import LogisticRegression
+from pyspark.ml.evaluation import MulticlassClassificationEvaluator 
+from pyspark.ml.tuning import TrainValidationSplit, ParamGridBuilder
+
+lr = LogisticRegression()
+
+grid = (ParamGridBuilder()
+    .baseOn({lr.labelCol: 'label', 
+             lr.featuresCol: 'features'})
+    .addGrid(lr.regParam, [0.0, 0.5, 1.0, 1.5])
+    .build()
+)
+
+evaluator = MulticlassClassificationEvaluator()
+
+tvs = TrainValidationSplit(estimator=lr, 
+                           estimatorParamMaps=grid, 
+                           evaluator=evaluator, 
+                           trainRatio=0.9)
+
+tvsModel = tvs.fit(iris_training_ready)
+```
+Za pomocą `ParamGridBuilder` budujemy siatkę parametrów, po której będzie poruszała 
+się wybrana metoda ewaluacji, w tym przypadku `MulticlassClassificationEvaluator`.
+Parametr `trainRatio` określa jaka cześć zbioru będzie użyta do treningu. 
+
+```python
+tvsModel.bestModel.summary.accuracy
+```
+```commandline
+0.9866666666666667
+```
+Dzięki przetestowaniu różnych parametrów modeli regresji logistycznej udało się 
+znaleźć taki, dla którego accuracy wyniosło ponad 98%. \
+Wykorzystanie metody walidacji krzyżowej wygląda analogicznie.
+```python
+from pyspark.ml.tuning import CrossValidator
+
+cv = CrossValidator(estimator=lr, 
+                    estimatorParamMaps=grid, 
+                    evaluator=evaluator,
+                    numFolds=4,
+                    parallelism=2)
+
+cvModel = cv.fit(iris_training_ready)
+cvModel.bestModel.summary.accuracy
+```
+```commandline
+0.9866666666666667
+```
+Parametr `numFolds` określa, na ile podzbiorów będzie podzielony dataset. Natomiast 
+`parallelism` odpowiada za zrównoleglenie obliczeń. 
+
 
 ### Predykcja
 
-Predykcji dokonujemy za pomocą metody `transform` w której podajemy nasz zbiór testowy.
+Predykcji dokonujemy za pomocą metody `transform` w której możemy podać nasz zbiór testowy.
 
 ```python
 predictions = trained_model.transform(test)
