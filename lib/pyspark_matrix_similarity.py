@@ -1,9 +1,8 @@
-from pyspark.ml.feature import StringIndexer, OneHotEncoder
 from pyspark.sql import DataFrame
-from typing import List, Literal
-from pyspark.ml.feature import VectorAssembler
-from lib.pyspark_cosinus_similarity import cosineSimilarity
-import numpy as np
+from lib.pyspark_cosinus_similarity import cosine_similarity
+import pandas as pd
+
+
 def cosine_similarity_for_row(
     df: DataFrame,
     movie_id: str,
@@ -14,29 +13,20 @@ def cosine_similarity_for_row(
 
     :param df:              pyspark.sql.DataFrame
     :param movie_id:         String
-    :return:                pyspark.sql.DataFrame"""
+    :return:                pandas.DataFrame"""
 
+    similarity_df = pd.DataFrame(columns=["movie_id", "similarity"])
 
+    vector1 = df.filter(df.id == movie_id).select("features").collect()[0][0]
 
-    row_df = df.filter(df.index == movie_id)
-    vector_assembler = VectorAssembler(inputCols=df.columns, outputCol="features")
-    vectorized_df = vector_assembler.transform(row_df)
+    for i in range(df.count()):
+        tem_mov_id = str(df.select("id").collect()[i][0])
+        print(tem_mov_id)
+        vec2 = df.select("features").collect()[i][0]
+        sim = cosine_similarity(vector1, vec2)
+        print(sim)
+        similarity_df = similarity_df.append(
+            {"movie_id": str(tem_mov_id), "similarity": sim}, ignore_index=True
+        )
 
-    cosine_similarity = cosineSimilarity(inputCol="features", outputCol="sim")
-    sim_df = cosine_similarity.transform(vectorized_df)
-
-    sims = sim_df.select("sim").collect()
-
-    return np.array([row[0] for row in sims])
-
-   # X, Y = check_pairwise_arrays(X, Y)
-   #
-   #  X_normalized = normalize(X, copy=True)
-   #  if X is Y:
-   #      Y_normalized = X_normalized
-   #  else:
-   #      Y_normalized = normalize(Y, copy=True)
-   #
-   #  K = safe_sparse_dot(X_normalized, Y_normalized.T, dense_output=dense_output)
-   #
-   #  return K
+    return similarity_df
