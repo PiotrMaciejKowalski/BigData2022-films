@@ -1,5 +1,6 @@
 from pyspark.sql import DataFrame
 from lib.pyspark_cosinus_similarity import cosine_similarity
+from pyspark.ml.linalg import DenseVector
 import pandas as pd
 
 
@@ -15,16 +16,18 @@ def cosine_similarity_for_row(
     :param movie_id:         String
     :return:                pandas.DataFrame"""
 
-    similarity_df = pd.DataFrame(columns=["movie_id", "similarity"])
+    similarity_df: pd.DataFrame = pd.DataFrame(columns=["movie_id", "similarity"])
 
-    vector1 = df.filter(df.id == movie_id).select("features").collect()[0][0]
+    vector1: DenseVector = (
+        df.filter(df.id == movie_id).select("features").collect()[0][0]
+    )
 
     for i in range(df.count()):
-        tem_mov_id = str(df.select("id").collect()[i][0])
-        vec2 = df.select("features").collect()[i][0]
-        sim = cosine_similarity(vector1, vec2)
+        tem_mov_id: str = str(df.select("id").collect()[i][0])
+        vector2: DenseVector = df.select("features").collect()[i][0]
+        cos_similarity: float = cosine_similarity(vector1, vector2)
         similarity_df = similarity_df.append(
-            {"movie_id": str(tem_mov_id), "similarity": sim}, ignore_index=True
+            {"movie_id": str(tem_mov_id), "similarity": cos_similarity}
         )
 
     return similarity_df
