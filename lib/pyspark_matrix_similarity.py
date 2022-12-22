@@ -7,7 +7,7 @@ import pandas as pd
 def cosine_similarity_for_row(
     df: DataFrame,
     movie_id: str,
-) -> DataFrame:
+) -> pd.DataFrame:
     """This function returns a Pandas dataframe that contains similarity calculations for the given movie_id.
        There should not be any null values in the DataFrame, and all categorical values should be one-hot encoded.
        All other numeric values, such as Year, rating should be normalized.
@@ -17,6 +17,9 @@ def cosine_similarity_for_row(
     :return:                pandas.DataFrame"""
 
     similarity_df: pd.DataFrame = pd.DataFrame(columns=["movie_id", "similarity"])
+
+    assert "movie_id" in df.columns and "features" in df.columns
+    assert not any(df.select(col).na.drop().count() < df.count() for col in df.columns)
 
     vector1: DenseVector = (
         df.filter(df.id == movie_id).select("features").collect()[0][0]
