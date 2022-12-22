@@ -21,10 +21,8 @@ def cosine_similarity_for_row(
 
     for i in range(df.count()):
         tem_mov_id = str(df.select("id").collect()[i][0])
-        print(tem_mov_id)
         vec2 = df.select("features").collect()[i][0]
         sim = cosine_similarity(vector1, vec2)
-        print(sim)
         similarity_df = similarity_df.append(
             {"movie_id": str(tem_mov_id), "similarity": sim}, ignore_index=True
         )
