@@ -7,7 +7,7 @@ def cosine_similarity_for_row(
     df: DataFrame,
     movie_id: str,
 ) -> DataFrame:
-    """This function returns a Spark dataframe that contains similarity calculations for the given movie_id.
+    """This function returns a Pandas dataframe that contains similarity calculations for the given movie_id.
        There should not be any null values in the DataFrame, and all categorical values should be one-hot encoded.
        All other numeric values, such as Year, rating should be normalized.
 
