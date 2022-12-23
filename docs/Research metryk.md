@@ -14,7 +14,7 @@ lista -> [film1, film2, film3, film4, film5]
 
 Następnie dla każdego elementu z listy liczymy score: 
 
-```angular2html
+```
 score_i = 0
 jeżeli warunek prawdziwy:
     score_i = +1
