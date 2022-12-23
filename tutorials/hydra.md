@@ -235,7 +235,7 @@ https://youtu.be/tEsPyYnzt8s?t=715
 
 
 
-
+#
 
 Podczas gdy istnieje [ogromna liczba](https://github.com/vinta/awesome-python#configuration) sposobów na określenie pliku konfiguracyjnego, Hydra pracuje z plikami YAML. Zaczynamy od stworzenia prostego pliku `config.yaml` zawierającego kilka szczegółów dotyczących naszego (fałszywego) zbioru danych obrazkowych:
 
