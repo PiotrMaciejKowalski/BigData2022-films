@@ -9,12 +9,12 @@ from lib.pyspark_startup import init
 import findspark
 
 findspark.init()
-
+spark = init()
 
 class TestCosineSimilarityForRow(unittest.TestCase):
     def test_required_columns(self):
         # Test that the function raises an assertion error if the input dataframe does not have the required columns
-        spark = init()
+
         test_df = spark.createDataFrame([("1", "Movie 1")], ["id", "title"])
 
         movie_id = "1"
@@ -24,7 +24,7 @@ class TestCosineSimilarityForRow(unittest.TestCase):
     def test_cosine_similarity(self):
         # Test that the function calculates the cosine similarity correctly for a given movie id
 
-        spark = init()
+
 
         test_df = spark.createDataFrame(
             [
@@ -52,3 +52,4 @@ class TestCosineSimilarityForRow(unittest.TestCase):
         )
 
         self.assertTrue(isclose(res1, res2, rel_tol=1e-9))
+

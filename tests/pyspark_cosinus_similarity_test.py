@@ -25,7 +25,6 @@ class TestCosineSimilarity(unittest.TestCase):
         vec2 = DenseVector([-1, -2, -3])
         expected_result = -1
         result = cosine_similarity(vec1, vec2)
-        self.assertEqual(result, expected_result)
         self.assertTrue(isclose(result, expected_result, rel_tol=1e-9))
 
     def test_result_range(self):

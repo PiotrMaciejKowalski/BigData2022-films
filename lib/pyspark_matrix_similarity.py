@@ -22,6 +22,13 @@ def cosine_similarity_for_row(
     # assert "movie_id" in df.columns and "features" in df.columns
     assert (df[str(col)].isNull() for col in df.columns)
 
+
+
+
+
+
+
+
     vector1: DenseVector = (
         df.filter(df.id == movie_id).select("features").collect()[0][0]
     )
