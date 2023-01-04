@@ -12,6 +12,7 @@ def cosine_similarity_for_row(
     """This function returns a DataFrame that contains cosinus similarity calculations for the given movie_id.
 
 
+
     :param df:              pyspark.sql.DataFrame
     :param movie_id:        String
     :return:                pyspark.sql.DataFrame"""
@@ -21,13 +22,6 @@ def cosine_similarity_for_row(
 
     # assert "movie_id" in df.columns and "features" in df.columns
     assert (df[str(col)].isNull() for col in df.columns)
-
-
-
-
-
-
-
 
     vector1: DenseVector = (
         df.filter(df.id == movie_id).select("features").collect()[0][0]

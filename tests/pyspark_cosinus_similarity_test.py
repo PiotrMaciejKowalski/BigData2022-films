@@ -37,9 +37,9 @@ class TestCosineSimilarity(unittest.TestCase):
     def test_input_type(self):
         # Test that the function raises a TypeError if either of the input vectors is not a DenseVector
         with self.assertRaises(TypeError):
-            cosine_similarity([1, 2, 3], DenseVector([3, 2, 1]))
+            cosine_similarity(DenseVector([1, 2, 3]), DenseVector([3, 2, 1]))
         with self.assertRaises(TypeError):
-            cosine_similarity(DenseVector([1, 2, 3]), [3, 2, 1])
+            cosine_similarity(DenseVector([1, 2, 3]), DenseVector([3, 2, 1]))
 
     def test_input_dimension(self):
         # Test that the function raises a ValueError if the input vectors have different dimensions
