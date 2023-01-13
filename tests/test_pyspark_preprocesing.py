@@ -4,7 +4,7 @@ findspark.init()
 
 from pyspark_test import assert_pyspark_df_equal
 from pyspark.ml.linalg import SparseVector
-from lib.pyspark_preprocesing import one_hot_encoding, normalize_by_group
+from lib.pyspark_preprocesing import one_hot_encoding, normalize_by_group, count_vectorizer
 from lib.pyspark_startup import init
 
 
@@ -51,6 +51,34 @@ def test_normalize_by_group():
             ("b", "c", 1.0, 0.7071067811865475, None),
         ],
         ["col1", "col2", "col5", "norm_col3", "norm_col4"],
+    )
+
+    assert_pyspark_df_equal(result, exp_result)
+
+
+def test_count_vectorizer():
+    spark = init()
+
+    test_df = spark.createDataFrame(
+        [
+            ("a,bb,c,d", 1),
+            ("c,a", 2),
+            ("bb,c", 3),
+            ("d,c,a", 4)
+        ],
+        ["col1", "col2"],
+    )
+
+    result = count_vectorizer(test_df, "col1")
+
+    exp_result = spark.createDataFrame(
+        [
+            (1, SparseVector(4, [0, 1, 2, 3], [1.0, 1.0, 1.0, 1.0])),
+            (2, SparseVector(4, [0, 1], [1.0, 1.0])),
+            (3, SparseVector(4, [0, 3], [1.0, 1.0])),
+            (4, SparseVector(4, [0, 1, 2], [1.0, 1.0, 1.0]))
+        ],
+        ["col2", "col1_vec"],
     )
 
     assert_pyspark_df_equal(result, exp_result)
