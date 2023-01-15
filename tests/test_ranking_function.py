@@ -14,8 +14,6 @@ def test_ranking_function():
     row1 = Row(
         id="tt0000001",
         czy_dla_doroslych="0",
-        rok_wydania_produkcji=1894,
-        rok_zakonczenia_produkcji=1894,
         dlugosc_produkcji_w_min=1,
         liczba_sezonow=1.0,
         liczba_wszystkich_odcinkow=1.0,
@@ -39,8 +37,6 @@ def test_ranking_function():
     row2 = Row(
         id="tt0000003",
         czy_dla_doroslych="0",
-        rok_wydania_produkcji=1892,
-        rok_zakonczenia_produkcji=1892,
         dlugosc_produkcji_w_min=4,
         liczba_sezonow=1.0,
         liczba_wszystkich_odcinkow=1.0,
@@ -63,8 +59,6 @@ def test_ranking_function():
 
     row3 = Row(
         czy_dla_doroslych="1",
-        rok_wydania_produkcji=1892,
-        rok_zakonczenia_produkcji=1892,
         dlugosc_produkcji_w_min=4,
         liczba_sezonow=1.0,
         liczba_wszystkich_odcinkow=10,
@@ -74,9 +68,9 @@ def test_ranking_function():
         ludzie_filmu=["nm0721526", "nm1770680", "nm1335271", "nm5442200"],
     )
 
-    assert ranking_function(row1, row2) == 9.0
-    assert ranking_function(row1, row1) == 14.0
-    assert ranking_function(row1, row3) == 4.0
+    assert ranking_function(row1, row2) == 7.0
+    assert ranking_function(row1, row1) == 12.0
+    assert ranking_function(row1, row3) == 2.0
     assert ranking_function(row1, row3) == ranking_function(row3, row1)
 
 
@@ -89,8 +83,6 @@ def test_ranking_list():
                 "tt0000480",
                 "Le coffre enchanté",
                 "0",
-                1904,
-                1904,
                 3,
                 1.0,
                 1.0,
@@ -103,8 +95,6 @@ def test_ranking_list():
                 "tt0029294",
                 "Natación",
                 "0",
-                1937,
-                1937,
                 11,
                 1.0,
                 1.0,
@@ -128,8 +118,6 @@ def test_ranking_list():
                 "tt0000000",
                 "testfilm",
                 "1",
-                2022,
-                2023,
                 7,
                 2.0,
                 1.0,
@@ -143,8 +131,6 @@ def test_ranking_list():
             "id",
             "tytul",
             "czy_dla_doroslych",
-            "rok_wydania_produkcji",
-            "rok_zakonczenia_produkcji",
             "dlugosc_produkcji_w_min",
             "liczba_sezonow",
             "liczba_wszystkich_odcinkow",
@@ -159,12 +145,12 @@ def test_ranking_list():
     result2 = ranking_list(test_df, "tt0000000")
 
     exp_result1 = pd.DataFrame(
-        [["tt0000480", 12.0], ["tt0029294", 7.0], ["tt0000000", 3.0]],
+        [["tt0000480", 10.0], ["tt0029294", 7.0], ["tt0000000", 4.0]],
         columns=["id", "score"],
     )
 
     exp_result2 = pd.DataFrame(
-        [["tt0000480", 3.0], ["tt0029294", 4.0], ["tt0000000", 11.0]],
+        [["tt0000480", 4.0], ["tt0029294", 5.0], ["tt0000000", 9.0]],
         columns=["id", "score"],
     )
 

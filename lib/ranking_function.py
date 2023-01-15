@@ -33,20 +33,15 @@ def ranking_function(row1: Row, row2: Row) -> int:
     if abs(row1["dlugosc_produkcji_w_min"] - row2["dlugosc_produkcji_w_min"]) < 15:
         score += 1
 
-    if (
-        row1["liczba_sezonow"]
-        == row2["liczba_sezonow"]
-        == 1 | abs(row1["liczba_sezonow"] - row2["liczba_sezonow"])
-        < 2
+    if (row1["liczba_sezonow"] == row2["liczba_sezonow"] == 1) or (
+        abs(row1["liczba_sezonow"] - row2["liczba_sezonow"]) < 2
     ):
         score += 1
 
     if (
-        row1["liczba_wszystkich_odcinkow"]
-        == row2["liczba_wszystkich_odcinkow"]
-        == 1
-        | abs(row1["liczba_wszystkich_odcinkow"] - row2["liczba_wszystkich_odcinkow"])
-        < 6
+        row1["liczba_wszystkich_odcinkow"] == row2["liczba_wszystkich_odcinkow"] == 1
+    ) or (
+        abs(row1["liczba_wszystkich_odcinkow"] - row2["liczba_wszystkich_odcinkow"]) < 6
     ):
         score += 1
 
