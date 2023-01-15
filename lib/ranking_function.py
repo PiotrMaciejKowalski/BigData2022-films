@@ -13,8 +13,6 @@ def ranking_function(row1: Row, row2: Row) -> int:
     """
     cols = [
         "czy_dla_doroslych",
-        "rok_wydania_produkcji",
-        "rok_zakonczenia_produkcji",
         "dlugosc_produkcji_w_min",
         "liczba_sezonow",
         "liczba_wszystkich_odcinkow",
@@ -32,19 +30,24 @@ def ranking_function(row1: Row, row2: Row) -> int:
     if row1["czy_dla_doroslych"] == row2["czy_dla_doroslych"]:
         score += 1
 
-    if abs(row1["rok_wydania_produkcji"] - row2["rok_wydania_produkcji"]) < 10:
-        score += 1
-
-    if abs(row1["rok_zakonczenia_produkcji"] - row2["rok_zakonczenia_produkcji"]) < 10:
-        score += 1
-
     if abs(row1["dlugosc_produkcji_w_min"] - row2["dlugosc_produkcji_w_min"]) < 15:
         score += 1
 
-    if row1["liczba_sezonow"] == row2["liczba_sezonow"]:
+    if (
+        row1["liczba_sezonow"]
+        == row2["liczba_sezonow"]
+        == 1 | abs(row1["liczba_sezonow"] - row2["liczba_sezonow"])
+        < 2
+    ):
         score += 1
 
-    if row1["liczba_wszystkich_odcinkow"] == row2["liczba_wszystkich_odcinkow"]:
+    if (
+        row1["liczba_wszystkich_odcinkow"]
+        == row2["liczba_wszystkich_odcinkow"]
+        == 1
+        | abs(row1["liczba_wszystkich_odcinkow"] - row2["liczba_wszystkich_odcinkow"])
+        < 6
+    ):
         score += 1
 
     if row1["rodzaj_produkcji_ohe"] == row2["rodzaj_produkcji_ohe"]:
