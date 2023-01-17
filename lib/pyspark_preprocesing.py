@@ -111,11 +111,7 @@ def normalize_by_group(
     return df_out
 
 
-def count_vectorizer(
-    df: DataFrame,
-    column: str,
-    drop_cols: bool = True
-) -> DataFrame:
+def count_vectorizer(df: DataFrame, column: str, drop_cols: bool = True) -> DataFrame:
     """Funkcja zwraca sparkowy DataFrame w którym wartości w wybranej kolumnie
     zostały zamienione na wektory. Kolumna powinna zawierać zmienne typu
     string z cechami oddzielonymi przecinkami. Tymczasowo tworzona jest kolumna
@@ -149,3 +145,24 @@ def count_vectorizer(
         result = result.drop(column)
 
     return result
+
+
+
+
+def convert_types(df: DataFrame, columns: List[str], type: str):
+    """Funkcja konwertuje kolumny na określony typ danych.
+
+    Args:
+        df (DataFrame):         sparkowy DataFrame
+        columns (List[str]):    lista kolumn do przekonwerotowania
+        type (str):             typ, na który chcemy przekonwertować dane
+
+    Returns:
+        df_transformed: sparkowy DataFrame ze zmienionymi typami kolumn
+    """
+    assert all(x in df.columns for x in columns)
+
+    for c in columns:
+        df_transformed = df.withColumn(c, col(c).cast(type).alias(c))
+
+    return df_transformed
