@@ -181,15 +181,20 @@ def value_overwrite(
         df: sparkowy DataFrame z nadpisanymi wartościami
     """
     assert all(x in df.columns for x in columns)
+    assert "rodzaj_produkcji" in df.columns
     assert len(columns) == len(values)
 
     for col, value in zip(columns, values):
         if isinstance(value, str):
             df = df.withColumn(
-                col, when(df[col].isin(category), df[value]).otherwise(df[col])
+                col,
+                when(df["rodzaj_produkcji"].isin(category), df[value]).otherwise(
+                    df[col]
+                ),
             )
         else:
             df = df.withColumn(
-                col, when(df[col].isin(category), value).otherwise(df[col])
+                col,
+                when(df["rodzaj_produkcji"].isin(category), value).otherwise(df[col]),
             )
     return df
