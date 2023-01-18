@@ -13,13 +13,10 @@ from lib.ranking_function import ranking_function, ranking_list
 def test_ranking_function():
     row1 = Row(
         id="tt0000001",
-        czy_dla_doroslych="0",
         dlugosc_produkcji_w_min=1,
         liczba_sezonow=1.0,
         liczba_wszystkich_odcinkow=1.0,
-        rodzaj_produkcji_ohe=SparseVector(7, {0: 1.0}),
-        epoka_ohe=SparseVector(9, {}),
-        gatunek_vec=SparseVector(28, {0: 1.0, 2: 1.0}),
+        features=SparseVector(45, {0: 1.0, 2: 1.0}),
         ludzie_filmu=[
             "nm1588970",
             "nm0005690",
@@ -36,13 +33,10 @@ def test_ranking_function():
 
     row2 = Row(
         id="tt0000003",
-        czy_dla_doroslych="0",
         dlugosc_produkcji_w_min=4,
         liczba_sezonow=1.0,
         liczba_wszystkich_odcinkow=1.0,
-        rodzaj_produkcji_ohe=SparseVector(7, {0: 1.0}),
-        epoka_ohe=SparseVector(9, {}),
-        gatunek_vec=SparseVector(28, {3: 1.0, 5: 1.0, 6: 1.0}),
+        features=SparseVector(45, {0: 1.0, 3: 1.0, 5: 1.0, 6: 1.0}),
         ludzie_filmu=[
             "nm0721526",
             "nm1770680",
@@ -58,18 +52,15 @@ def test_ranking_function():
     )
 
     row3 = Row(
-        czy_dla_doroslych="1",
         dlugosc_produkcji_w_min=4,
         liczba_sezonow=1.0,
         liczba_wszystkich_odcinkow=10,
-        rodzaj_produkcji_ohe=SparseVector(7, {2: 1.0}),
-        epoka_ohe=SparseVector(9, {1: 1.0}),
-        gatunek_vec=SparseVector(28, {3: 1.0, 6: 1.0}),
+        features=SparseVector(45, {3: 1.0, 6: 1.0}),
         ludzie_filmu=["nm0721526", "nm1770680", "nm1335271", "nm5442200"],
     )
 
-    assert ranking_function(row1, row2) == 7.0
-    assert ranking_function(row1, row1) == 12.0
+    assert ranking_function(row1, row2) == 5.0
+    assert ranking_function(row1, row1) == 9.0
     assert ranking_function(row1, row3) == 2.0
     assert ranking_function(row1, row3) == ranking_function(row3, row1)
 
@@ -86,10 +77,9 @@ def test_ranking_list():
                 3,
                 1.0,
                 1.0,
-                SparseVector(7, {0: 1.0}),
-                SparseVector(9, {7: 1.0}),
                 SparseVector(28, {0: 1.0, 14: 1.0}),
-                ["nm0617588", None, None, None, None, None, None, None, None, None],
+                ["nm0617588", None, None, None, None, None, None, None, None,
+                 None],
             ),
             (
                 "tt0029294",
@@ -98,8 +88,6 @@ def test_ranking_list():
                 11,
                 1.0,
                 1.0,
-                SparseVector(7, {0: 1.0}),
-                SparseVector(9, {6: 1.0}),
                 SparseVector(28, {0: 1.0, 2: 1.0, 20: 1.0}),
                 [
                     "nm0034042",
@@ -121,8 +109,6 @@ def test_ranking_list():
                 7,
                 2.0,
                 1.0,
-                SparseVector(7, {0: 1.0}),
-                SparseVector(9, {8: 1.0}),
                 SparseVector(28, {}),
                 ["nm0034042", "ddddbf", "fafasfasf"],
             ),
@@ -134,9 +120,7 @@ def test_ranking_list():
             "dlugosc_produkcji_w_min",
             "liczba_sezonow",
             "liczba_wszystkich_odcinkow",
-            "rodzaj_produkcji_ohe",
-            "epoka_ohe",
-            "gatunek_vec",
+            "features",
             "ludzie_filmu",
         ],
     )
@@ -145,12 +129,12 @@ def test_ranking_list():
     result2 = ranking_list(test_df, "tt0000000")
 
     exp_result1 = pd.DataFrame(
-        [["tt0000480", 10.0], ["tt0029294", 7.0], ["tt0000000", 4.0]],
+        [["tt0000480", 7.0], ["tt0029294", 5.0], ["tt0000000", 3.0]],
         columns=["id", "score"],
     )
 
     exp_result2 = pd.DataFrame(
-        [["tt0000480", 4.0], ["tt0029294", 5.0], ["tt0000000", 9.0]],
+        [["tt0000480", 3.0], ["tt0029294", 4.0], ["tt0000000", 6.0]],
         columns=["id", "score"],
     )
 
