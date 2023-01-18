@@ -13,7 +13,9 @@ from lib.pyspark_startup import init
 def test_merge_dense_vectors():
     spark = init()
     test_dataset = spark.createDataFrame(
-         [(0, Vectors.dense([0.0, 10.0, 0.5]), 1.0, Vectors.dense([0.0, 10.0, 0.5]), Vectors.dense([0.0, 10.0, 0.5]))],
+         [
+             (0, Vectors.dense([0.0, 10.0, 0.5]), 1.0, Vectors.dense([0.0, 10.0, 0.5]), Vectors.dense([0.0, 10.0, 0.5]))
+         ],
          ["id", "hour", "mobile", "userFeatures", "clicked"]
     )
     
