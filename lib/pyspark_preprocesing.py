@@ -1,5 +1,5 @@
 from pyspark.ml.feature import StringIndexer, OneHotEncoder, CountVectorizer
-from pyspark.sql.functions import split, col
+from pyspark.sql.functions import split, col, when
 from pyspark.sql import DataFrame, SparkSession
 from typing import List, Literal
 
@@ -145,3 +145,51 @@ def count_vectorizer(df: DataFrame, column: str, drop_cols: bool = True) -> Data
         result = result.drop(column)
 
     return result
+
+
+def convert_types(df: DataFrame, columns: List[str], type: str) -> DataFrame:
+    """Funkcja konwertuje kolumny na określony typ danych.
+
+    Args:
+        df (DataFrame):         sparkowy DataFrame
+        columns (List[str]):    lista kolumn do przekonwerotowania
+        type (str):             typ, na który chcemy przekonwertować dane
+    Returns:
+        df: sparkowy DataFrame ze zmienionymi typami kolumn
+    """
+    assert all(x in df.columns for x in columns)
+
+    for c in columns:
+        df = df.withColumn(c, col(c).cast(type).alias(c))
+
+    return df
+
+
+def value_overwrite(
+    df: DataFrame, columns: List[str], values: List[str], category: List[str]
+) -> DataFrame:
+    """Funkcja nadpisuje wskazane kolumny poprzez wskazane wartości (lub kolumny)
+    dla okreslonych kategorii filmowych.
+
+    Args:
+        df (DataFrame):         sparkowy DataFrame
+        columns (List[str]):    lista kolumn do nadpisania
+        values (List[str]):     odpowiednio wartości (lub kolumny) jakimi chcemy nadpisać
+        category (List[str]):   kategorie dla jakich mamy nadpisywać wartości
+
+    Returns:
+        df: sparkowy DataFrame z nadpisanymi wartościami
+    """
+    assert all(x in df.columns for x in columns)
+    assert len(columns) == len(values)
+
+    for col, value in zip(columns, values):
+        if isinstance(value, str):
+            df = df.withColumn(
+                col, when(df[col].isin(category), df[value]).otherwise(df[col])
+            )
+        else:
+            df = df.withColumn(
+                col, when(df[col].isin(category), value).otherwise(df[col])
+            )
+    return df
