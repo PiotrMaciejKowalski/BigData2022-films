@@ -55,7 +55,7 @@ def test_ranking_function():
         dlugosc_produkcji_w_min=4,
         liczba_sezonow=1.0,
         liczba_wszystkich_odcinkow=10,
-        gatunek_vec=SparseVector(45, {3: 1.0, 6: 1.0}),
+        features=SparseVector(45, {3: 1.0, 6: 1.0}),
         ludzie_filmu=["nm0721526", "nm1770680", "nm1335271", "nm5442200"],
     )
 
@@ -77,10 +77,9 @@ def test_ranking_list():
                 3,
                 1.0,
                 1.0,
-                SparseVector(7, {0: 1.0}),
-                SparseVector(9, {7: 1.0}),
                 SparseVector(28, {0: 1.0, 14: 1.0}),
-                ["nm0617588", None, None, None, None, None, None, None, None, None],
+                ["nm0617588", None, None, None, None, None, None, None, None,
+                 None],
             ),
             (
                 "tt0029294",
@@ -89,8 +88,6 @@ def test_ranking_list():
                 11,
                 1.0,
                 1.0,
-                SparseVector(7, {0: 1.0}),
-                SparseVector(9, {6: 1.0}),
                 SparseVector(28, {0: 1.0, 2: 1.0, 20: 1.0}),
                 [
                     "nm0034042",
@@ -112,8 +109,6 @@ def test_ranking_list():
                 7,
                 2.0,
                 1.0,
-                SparseVector(7, {0: 1.0}),
-                SparseVector(9, {8: 1.0}),
                 SparseVector(28, {}),
                 ["nm0034042", "ddddbf", "fafasfasf"],
             ),
@@ -125,9 +120,7 @@ def test_ranking_list():
             "dlugosc_produkcji_w_min",
             "liczba_sezonow",
             "liczba_wszystkich_odcinkow",
-            "rodzaj_produkcji_ohe",
-            "epoka_ohe",
-            "gatunek_vec",
+            "features",
             "ludzie_filmu",
         ],
     )
