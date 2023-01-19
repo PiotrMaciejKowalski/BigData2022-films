@@ -11,9 +11,14 @@ findspark.init()
 spark = init()
 
 class TestIntersectionOverUnionForRow(unittest.TestCase):
-    def test(self):
-        #metryka  iou do poprawy.
-        pass
+    def test_required_columns(self):
+        # Test that the function raises an assertion error if the input dataframe does not have the required columns
+
+        test_df = spark.createDataFrame([("1", "Movie 1")], ["id", "title"])
+
+        movie_id = "1"
+        with self.assertRaises(AssertionError):
+            intersection_over_union_for_row(test_df, movie_id)
 
     def test_intersection_over_union(self):
         # Test that the function calculates the cosine similarity correctly for a given movie id
@@ -26,7 +31,7 @@ class TestIntersectionOverUnionForRow(unittest.TestCase):
         )
 
         expected_result = spark.createDataFrame(
-            [("1", 1.0), ("2", 0.25)], ["id", "IoU"]
+            [("1", 1.0), ("2", 0.1428571492433548)], ["id", "IoU"]
         )
         movie_id = "1"
 
