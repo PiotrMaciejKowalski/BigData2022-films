@@ -1,11 +1,13 @@
 #TODO wstawić później tę funkcję do pliku feature_creators i usunąć ten plik
+from typing import Union, List, Optional
+
 import pyspark.sql.functions as f
 from pyspark.sql import DataFrame
-from typing import Union, List, Optional
+
 
 def people_film_merge_columns(df: DataFrame, film_id: str, add_column: Optional[bool] = False) -> Union[DataFrame,List[str]]:
   """
-  Funkcja  dla danej tabeli i id filmu zwraca listę z id ludzi, którzy współtworzyli 
+  Funkcja dla danej tabeli i id filmu zwraca listę z id ludzi, którzy współtworzyli
   daną produkcję (jeśli add_column = False) lub wstawia nową kolumnę do tabeli
   z wierszem zawierającym tę listę (jeśli add_column = True).
   """

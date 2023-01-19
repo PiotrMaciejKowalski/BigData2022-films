@@ -1,16 +1,20 @@
 import unittest
 
+import findspark
+from pyspark.ml.linalg import DenseVector
 from pyspark_test import assert_pyspark_df_equal
 
 from lib.pyspark_matrix_similarity import cosine_similarity_for_row
-from pyspark.ml.linalg import DenseVector
-
 from lib.pyspark_startup import init
-
-import findspark
 
 findspark.init()
 spark = init()
+
+class TestIntersectionOverUnionForRow(unittest.TestCase):
+    def test(self):
+        #metryka  iou do poprawy.
+        pass
+
 
 
 class TestCosineSimilarityForRow(unittest.TestCase):

@@ -1,8 +1,10 @@
-from pyspark.sql import DataFrame
-from lib.pyspark_cosinus_similarity import cosine_similarity
 import pyspark.sql.functions as f
-from pyspark.sql.types import FloatType
 from pyspark.ml.linalg import DenseVector
+from pyspark.sql import DataFrame
+from pyspark.sql.types import FloatType
+
+from lib.metrics import intersection_over_union
+from lib.pyspark_cosinus_similarity import cosine_similarity
 
 
 def cosine_similarity_for_row(
@@ -35,3 +37,34 @@ def cosine_similarity_for_row(
     df = df.withColumn("cos_similarity", my_udf(f.col("features")))
 
     return df.select(["id", "cos_similarity"])
+
+
+def intersection_over_union_for_row(
+    df: DataFrame,
+    movie_id: str,
+) -> DataFrame:
+    """This function returns a DataFrame that intersection_over_union calculations for the given movie_id.
+
+
+
+    :param df:              pyspark.sql.DataFrame
+    :param movie_id:        String
+    :return:                pyspark.sql.DataFrame"""
+
+    if not ("id" in df.columns and "ludzie_filmu" in df.columns):
+        raise AssertionError("input dataframe does not have the required columns")
+
+    assert (df[str(col)].isNull() for col in df.columns)
+
+    vector1: DenseVector = (
+        df.filter(df.id == movie_id).select("ludzie_filmu").collect()[0][0]
+    )
+
+    def IOU(x):
+        return intersection_over_union(vector1, x)
+
+    my_udf = f.udf(IOU, FloatType())
+
+    df = df.withColumn("IoU", my_udf(f.col("ludzie_filmu")))
+
+    return df.select(["id", "IoU"])
