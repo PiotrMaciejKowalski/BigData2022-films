@@ -42,22 +42,24 @@ def cosine_similarity_for_row(
 def intersection_over_union_for_row(
     df: DataFrame,
     movie_id: str,
+    column_name: str = "ludzie_filmu",
 ) -> DataFrame:
-    """This function returns a DataFrame that intersection_over_union calculations for the given movie_id.
+    """This function returns a DataFrame that contains intersection_over_union calculations for the given movie_id.
 
 
 
+    :param column_name:     String
     :param df:              pyspark.sql.DataFrame
     :param movie_id:        String
     :return:                pyspark.sql.DataFrame"""
 
-    if not ("id" in df.columns and "ludzie_filmu" in df.columns):
+    if not ("id" in df.columns and column_name in df.columns):
         raise AssertionError("input dataframe does not have the required columns")
 
     assert (df[str(col)].isNull() for col in df.columns)
 
     vector1: DenseVector = (
-        df.filter(df.id == movie_id).select("ludzie_filmu").collect()[0][0]
+        df.filter(df.id == movie_id).select(column_name).collect()[0][0]
     )
 
     def IOU(x):
@@ -65,6 +67,6 @@ def intersection_over_union_for_row(
 
     my_udf = f.udf(IOU, FloatType())
 
-    df = df.withColumn("IoU", my_udf(f.col("ludzie_filmu")))
+    df = df.withColumn("IoU", my_udf(f.col(column_name)))
 
     return df.select(["id", "IoU"])
