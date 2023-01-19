@@ -113,7 +113,13 @@ def value_overwrite():
         ["id", "rodzaj_produkcji", "rating", "recenzja", "komentarz_publicznosci"]
     )
 
-    result = value_overwrite(test_df, ["rating", "komentarz_publicznosci"], [0, "recenzja"], ["kabaret", "komedia"])
+    result = value_overwrite(
+        test_df,
+        ["rating", "komentarz_publicznosci"],
+        [0, "recenzja"],
+        "rodzaj_produkcji",
+        ["kabaret", "komedia"]
+        )
 
     exp_result = spark.createDataFrame(
         [

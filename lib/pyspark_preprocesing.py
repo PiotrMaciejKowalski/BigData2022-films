@@ -166,7 +166,11 @@ def convert_types(df: DataFrame, columns: List[str], type: str) -> DataFrame:
 
 
 def value_overwrite(
-    df: DataFrame, columns: List[str], values: List[str], category: List[str]
+    df: DataFrame,
+    columns: List[str],
+    values: list,
+    category_col: str,
+    category: List[str],
 ) -> DataFrame:
     """Funkcja nadpisuje wskazane kolumny poprzez wskazane wartości (lub kolumny)
     dla okreslonych kategorii filmowych.
@@ -174,27 +178,26 @@ def value_overwrite(
     Args:
         df (DataFrame):         sparkowy DataFrame
         columns (List[str]):    lista kolumn do nadpisania
-        values (List[str]):     odpowiednio wartości (lub kolumny) jakimi chcemy nadpisać
+        values (str):           odpowiednio wartości (lub kolumny) jakimi chcemy nadpisać
+        category_col(str):      kolumna, według której będziemy odfiltrowywać kategorie
         category (List[str]):   kategorie dla jakich mamy nadpisywać wartości
 
     Returns:
         df: sparkowy DataFrame z nadpisanymi wartościami
     """
     assert all(x in df.columns for x in columns)
-    assert "rodzaj_produkcji" in df.columns
+    assert category_col in df.columns
     assert len(columns) == len(values)
 
     for col, value in zip(columns, values):
-        if isinstance(value, str):
+        if isinstance(value, str) and (value in df.columns):
             df = df.withColumn(
                 col,
-                when(df["rodzaj_produkcji"].isin(category), df[value]).otherwise(
-                    df[col]
-                ),
+                when(df[category_col].isin(category), df[value]).otherwise(df[col]),
             )
         else:
             df = df.withColumn(
                 col,
-                when(df["rodzaj_produkcji"].isin(category), value).otherwise(df[col]),
+                when(df[category_col].isin(category), value).otherwise(df[col]),
             )
     return df
