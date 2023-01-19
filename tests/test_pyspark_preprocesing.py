@@ -92,7 +92,7 @@ def test_convert_types():
         [("1", 1.0), ("2", 2.0), ("3", 3.0), ("4", 4.0)], ["col_str", "col_float"]
     )
 
-    result = convert_types(test_df, ["col_str", "col_float"], "int")
+    result = convert_types(test_df, ["col_str", "col_float"], "long")
 
     exp_result = spark.createDataFrame(
         [(1, 1), (2, 2), (3, 3), (4, 4)], ["col_str", "col_float"]
