@@ -46,6 +46,26 @@ def intersection_over_union_for_row(
 ) -> DataFrame:
     """This function returns a DataFrame that contains intersection_over_union calculations for the given movie_id.
 
+    Example:
+            input Dataframe
+        +---------+-----------------------------+
+        |       id|          ludzie_filmu       |
+        +---------+-----------------------------+
+        |tt0000001|       ["a", "b", "c", "d"]  |
+        |tt0000003|       ["d", "e", "f", "g"]  |
+        +---------+-----------------------------+
+
+        intersection_over_union_for_row(df, "tt0000001", column_name = "ludzie_filmu" )
+
+            output
+
+        +---------+---------------+
+        |       id|     IoU       |
+        +---------+---------------+
+        |tt0000001|       1       |
+        |tt0000003|     0.142     |
+        +---------+---------------+
+
 
 
     :param column_name:     String
