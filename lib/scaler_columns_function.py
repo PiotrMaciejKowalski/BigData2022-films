@@ -10,8 +10,8 @@ def scaler_columns(
     columns: List[str],
     ) -> DataFrame:
 
-    """Funkcja zwraca sparkowy DataFrame w którym podane w parametrach kolumny zostają przeskalowane metodą MinMaxScaler i zamienone na vector type, a
-    do nazyw przeskalowanej kolumny dodany jest przedrostek _scaled.
+    """Funkcja zwraca sparkowy DataFrame w którym podane w parametrach kolumny zostają przeskalowane metodą MinMaxScaler i zamienione na vector type, a
+    do nazwy przeskalowanej kolumny dodany jest przedrostek _scaled.
 
     :param df: pyspark.sql.DataFrame
     :param columns: lista kolumn do znormalizowania
