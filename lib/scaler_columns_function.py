@@ -21,10 +21,9 @@ def scaler_columns(
     assemblers = [VectorAssembler(inputCols=[col], outputCol=col + "_vec") for col in columns]
     scalers = [MinMaxScaler(inputCol=col + "_vec", outputCol=col + "_scaled") for col in columns]
     pipeline = Pipeline(stages=assemblers + scalers)
-    scalerModel = pipeline.fit(df)
-    scaledData = scalerModel.transform(df)
+    scaledData = pipeline.fit(df).transform(df)
     scaledData = scaledData.drop(*columns)
-    vectors_columns = {x + "_vec": x for x in columns}
+    vectors_columns = [x + "_vec" for x in columns]
     scaledData = scaledData.drop(*vectors_columns)
     
     return scaledData
