@@ -6,7 +6,7 @@ from pyspark.sql.types import FloatType
 from lib.pyspark_matrix_similarity import cos_sim_and_iou_for_row
 
 
-def train(df: DataFrame, movie_name: str = None, movie_id: str = None):
+def train_model(df: DataFrame, movie_name: str = None, movie_id: str = None):
     """This function returns a DataFrame that contains finally similarity for the given movie.
     :param df:               pyspark.sql.DataFrame
     :param movie_name:       String
