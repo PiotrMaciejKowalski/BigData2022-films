@@ -90,3 +90,42 @@ def intersection_over_union_for_row(
     df = df.withColumn("IoU", my_udf(f.col(column_name)))
 
     return df.select(["id", "IoU"])
+
+
+def cos_sim_and_iou_for_row(
+    df: DataFrame,
+    movie_id: str,
+    cos_sim_col_name: str = "features",
+    iou_col_name: str = "ludzie_filmu",
+) -> DataFrame:
+    """This function returns a DataFrame that contains cosinus similarity and
+    intersection_over_union calculations for the given movie_id.
+
+
+
+    :param df:               pyspark.sql.DataFrame
+    :param movie_id:         String
+    :param cos_sim_col_name: String
+    :param iou_col_name:     String
+    :return:                 pyspark.sql.DataFrame"""
+
+    if not(cos_sim_col_name in df.columns and iou_col_name in df.columns):
+        raise AssertionError("input dataframe does not have the required columns")
+
+    vec_cos_sim = df.filter(df.id == movie_id).select(cos_sim_col_name).collect()[0][0]
+    vec_iou = df.filter(df.id == movie_id).select(iou_col_name).collect()[0][0]
+
+    def cos(x):
+        return cosine_similarity(vec_cos_sim, x)
+
+    cos_udf = f.udf(cos, FloatType())
+
+    def iou(x):
+        return intersection_over_union(vec_iou, x)
+
+    iou_udf = f.udf(iou, FloatType())
+
+    df = df.withColumn("cos_similarity", cos_udf(f.col(cos_sim_col_name)))
+    df = df.withColumn("IOU", iou_udf(f.col(iou_col_name)))
+
+    return df.select(["id", "tytul", "cos_similarity", "IOU"])
