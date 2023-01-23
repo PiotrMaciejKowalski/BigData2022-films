@@ -25,7 +25,7 @@ def predict(
         movie_id = df.filter(df.tytul == movie_name).select("id").collect()[0][0]
 
     train_df = cos_sim_and_iou_for_row(df=df, movie_id=movie_id)
-
+    train_df.filter(df.tytul == movie_name).select("id").collect()[0][0]
     add_udf = f.udf(lambda x, y: a_param * x + (1 - a_param) * y, FloatType())
 
     train_df = train_df.withColumn(
