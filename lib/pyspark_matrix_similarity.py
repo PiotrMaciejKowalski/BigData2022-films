@@ -116,7 +116,7 @@ def cos_sim_and_iou_for_row(
     vec_iou = df.filter(df.id == movie_id).select(iou_col_name).collect()[0][0]
 
     def cos(x):
-        return cosine_similarity(vec_cos_sim, x)
+        return cosine_similarity(DenseVector(vec_cos_sim), DenseVector(x))
 
     cos_udf = f.udf(cos, FloatType())
 
