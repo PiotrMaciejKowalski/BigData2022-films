@@ -6,7 +6,7 @@ from pyspark.sql.types import FloatType
 from lib.pyspark_matrix_similarity import cos_sim_and_iou_for_row
 
 
-def train_model(df: DataFrame, movie_name: str = None, movie_id: str = None):
+def train_model(df: DataFrame, movie_name: str = None, movie_id: str = None) -> DataFrame:
     """This function returns a DataFrame that contains finally similarity for the given movie.
     :param df:               pyspark.sql.DataFrame
     :param movie_name:       String
@@ -20,9 +20,10 @@ def train_model(df: DataFrame, movie_name: str = None, movie_id: str = None):
     return cos_sim_and_iou_for_row(df=df, movie_id=movie_id)
 
 
-def predict(df: DataFrame, a_param: float = 0.5) -> DataFrame:
+def predict(df: DataFrame, a_param: float = 0.5, sort_results=False) -> DataFrame:
     """This function returns a DataFrame that contains finally similarity for the given movie_id in scale form 0 to 1.
 
+    :param sort_results:     boolean
     :param a_param:          float
     :param df:               pyspark.sql.DataFrame
     :return:                 pyspark.sql.DataFrame"""
@@ -34,4 +35,7 @@ def predict(df: DataFrame, a_param: float = 0.5) -> DataFrame:
 
     df = df.withColumn("prediction", add_udf(df["cos_similarity"], df["IOU"]))
 
-    return df.sort(desc("prediction"))
+    if sort_results:
+        return df.sort(desc("prediction"))
+    else:
+        return df
