@@ -17,6 +17,7 @@ def scaler_columns(
 
     :param df: pyspark.sql.DataFrame
     :param columns: lista kolumn do znormalizowania
+    :param drop_cols: usunięcie oryginalnych kolumn
     :return: pyspark.sql.DataFrame
     """
 
