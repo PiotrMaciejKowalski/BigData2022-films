@@ -16,7 +16,7 @@ def test_scaler_columns():
         ["inp1", "inp2", "inp3", "inp4"],
     )
 
-    result = scaler_columns(test_dataset, ["inp1", "inp3"])
+    result = scaler_columns(test_dataset, ["inp1", "inp3"], drop_cols=True)
     exp_result = spark.createDataFrame(
         [
             (2435, 55, Vectors.dense([0.0]), Vectors.dense([0.4])),
