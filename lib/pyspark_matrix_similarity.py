@@ -92,6 +92,7 @@ def intersection_over_union_for_row(
     return df.select(["id", "IoU"])
 
 
+# TODO Dodac kolumne z funkcji rankujacej oraz testy
 def cos_sim_and_iou_for_row(
     df: DataFrame,
     movie_id: str,
@@ -109,7 +110,7 @@ def cos_sim_and_iou_for_row(
     :param iou_col_name:     String
     :return:                 pyspark.sql.DataFrame"""
 
-    if not(cos_sim_col_name in df.columns and iou_col_name in df.columns):
+    if not (cos_sim_col_name in df.columns and iou_col_name in df.columns):
         raise AssertionError("input dataframe does not have the required columns")
 
     vec_cos_sim = df.filter(df.id == movie_id).select(cos_sim_col_name).collect()[0][0]
@@ -129,3 +130,4 @@ def cos_sim_and_iou_for_row(
     df = df.withColumn("IOU", iou_udf(f.col(iou_col_name)))
 
     return df.select(["id", "tytul", "cos_similarity", "IOU"])
+    

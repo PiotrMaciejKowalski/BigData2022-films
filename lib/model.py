@@ -5,7 +5,10 @@ from pyspark.sql.types import FloatType
 
 from lib.pyspark_matrix_similarity import cos_sim_and_iou_for_row
 
-
+# TODO rozwinac klase model w celu mozliwosci testowania parametrow, korzystajac z miary ranking, tj.:
+# - uspojnic zwracany typ danych predyckji (Spark DataFrame) razem z miara ranking (Pandas DataFrame)
+# - optymalizacja predkosci dzialania funkcji predykcji (problem sortowania oraz filtrowania)
+# - dodac testy dla kazdej metody
 class Model:
     def __init__(self, df: DataFrame):
         self.df = df
