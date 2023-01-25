@@ -9,7 +9,8 @@ from lib.pyspark_cosinus_similarity import cosine_similarity
 
 def cosine_similarity_for_row(
     df: DataFrame,
-    movie_id: str,
+    movie_id: str = None,
+    movie_title = None
 ) -> DataFrame:
     """This function returns a DataFrame that contains cosinus similarity calculations for the given movie_id.
 
@@ -18,6 +19,11 @@ def cosine_similarity_for_row(
     :param df:              pyspark.sql.DataFrame
     :param movie_id:        String
     :return:                pyspark.sql.DataFrame"""
+
+    if movie_id is None:
+        movie_id = (
+            df.filter(df.tytul == movie_title).select("id").collect()[0][0]
+        )
 
     if not ("id" in df.columns and "features" in df.columns):
         raise AssertionError("input dataframe does not have the required columns")
@@ -130,4 +136,13 @@ def cos_sim_and_iou_for_row(
     df = df.withColumn("IOU", iou_udf(f.col(iou_col_name)))
 
     return df.select(["id", "tytul", "cos_similarity", "IOU"])
-    
+
+    def combine(df, a_param: float):
+        add_udf = f.udf(lambda x, y: a_param * x + (1 - a_param) * y)
+
+        df = df.withColumn("prediction", add_udf(df["cos_similarity"], df["IOU"]))
+
+        return df
+
+    def secret_souse(df:DataFrame):
+        return df.toPandas()
