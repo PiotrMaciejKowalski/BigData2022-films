@@ -101,9 +101,11 @@ def intersection_over_union_for_row(
 # TODO Dodac kolumne z funkcji rankujacej oraz testy
 def cos_sim_and_iou_for_row(
     df: DataFrame,
-    movie_id: str,
+    movie_id: str = None,
+    movie_title:str = None,
     cos_sim_col_name: str = "features",
     iou_col_name: str = "ludzie_filmu",
+
 ) -> DataFrame:
     """This function returns a DataFrame that contains cosinus similarity and
     intersection_over_union calculations for the given movie_id.
@@ -115,6 +117,11 @@ def cos_sim_and_iou_for_row(
     :param cos_sim_col_name: String
     :param iou_col_name:     String
     :return:                 pyspark.sql.DataFrame"""
+
+    if movie_id is None:
+        movie_id = (
+            df.filter(df.tytul == movie_title).select("id").collect()[0][0]
+        )
 
     if not (cos_sim_col_name in df.columns and iou_col_name in df.columns):
         raise AssertionError("input dataframe does not have the required columns")
@@ -137,12 +144,12 @@ def cos_sim_and_iou_for_row(
 
     return df.select(["id", "tytul", "cos_similarity", "IOU"])
 
-    def combine(df, a_param: float):
-        add_udf = f.udf(lambda x, y: a_param * x + (1 - a_param) * y)
+def combine(df, a_param: float):
+    add_udf = f.udf(lambda x, y: a_param * x + (1 - a_param) * y)
 
-        df = df.withColumn("prediction", add_udf(df["cos_similarity"], df["IOU"]))
+    df = df.withColumn("prediction", add_udf(df["cos_similarity"], df["IOU"]))
 
-        return df
+    return df
 
-    def secret_souse(df:DataFrame):
-        return df.toPandas()
+def secret_souse(df:DataFrame):
+    return df.toPandas()
